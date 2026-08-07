@@ -632,6 +632,20 @@ export default function ProductDetails() {
           <div className="mt-8 rounded-xl border border-gray-200 bg-white p-5">
             <h2 className="font-semibold text-lg">Product Details</h2>
             <div className="mt-4 grid md:grid-cols-2 gap-3 text-sm text-gray-700">
+              {product.model && <div><span className="font-medium">Model:</span> {product.model}</div>}
+              {product.processor && <div><span className="font-medium">Processor:</span> {product.processor}</div>}
+              {product.ram && <div><span className="font-medium">RAM:</span> {product.ram}</div>}
+              {product.storage && <div><span className="font-medium">Storage:</span> {product.storage}</div>}
+              {product.storage_type && <div><span className="font-medium">Storage Type:</span> {product.storage_type}</div>}
+              {product.graphics && <div><span className="font-medium">Graphics:</span> {product.graphics}</div>}
+              {product.display_size && <div><span className="font-medium">Display Size:</span> {product.display_size}</div>}
+              {product.operating_system && <div><span className="font-medium">Operating System:</span> {product.operating_system}</div>}
+              {product.condition_grade && <div><span className="font-medium">Condition Grade:</span> {product.condition_grade}</div>}
+              {product.battery_health && <div><span className="font-medium">Battery Health:</span> {product.battery_health}</div>}
+              {product.warranty && <div><span className="font-medium">Warranty:</span> {product.warranty}</div>}
+              {product.charger_available !== undefined && product.charger_available !== null && (
+                <div><span className="font-medium">Charger Available:</span> {Number(product.charger_available) === 1 ? "Yes" : "No"}</div>
+              )}
               {product.fabric && <div><span className="font-medium">Fabric:</span> {product.fabric}</div>}
               {product.material && <div><span className="font-medium">Material:</span> {product.material}</div>}
               {product.embroidery && <div><span className="font-medium">Embroidery:</span> {product.embroidery}</div>}
@@ -641,6 +655,12 @@ export default function ProductDetails() {
               {product.unit && <div><span className="font-medium">Unit:</span> {product.unit}</div>}
               {product.gst_percentage && <div><span className="font-medium">GST:</span> {product.gst_percentage}%</div>}
             </div>
+            {product.description && (
+              <div className="mt-4 text-sm text-gray-700">
+                <p className="font-medium mb-1">Description</p>
+                <p className="whitespace-pre-line">{product.description}</p>
+              </div>
+            )}
           </div>
 
           <div className="mt-6 grid md:grid-cols-2 gap-4">

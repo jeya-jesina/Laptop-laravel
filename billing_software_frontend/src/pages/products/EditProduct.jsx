@@ -691,6 +691,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../services/api";
 import Barcode from "react-barcode";
+import MediaUploader from "../../components/MediaUploader";
 
 /* ─── Toast Hook ─────────────────────────────────────────── */
 function useToast() {
@@ -753,8 +754,25 @@ export default function EditProduct() {
     subcategory_id: "",
     brand_id: "",
     supplier_id: "",
-    unit: ""
+    unit: "",
+    model: "",
+    processor: "",
+    ram: "",
+    storage: "",
+    storage_type: "",
+    graphics: "",
+    display_size: "",
+    operating_system: "",
+    condition_grade: "",
+    battery_health: "",
+    warranty: "",
+    charger_available: "0",
+    description: "",
+    status: "active"
   });
+
+  const [imageUrls, setImageUrls] = useState([]);
+  const [videoUrls, setVideoUrls] = useState([]);
 
   const set = (field, val) => setForm(p => ({ ...p, [field]: val }));
 
@@ -889,10 +907,10 @@ export default function EditProduct() {
   }
 
 };
-  
+
   const fetchBrands = async (company_id, category_id, subcategory_id) => {
 
-    if (!company_id || !category_id || !subcategory_id) {
+    if (!company_id || !category_id) {
       setBrands([]);
       return;
     }
@@ -900,7 +918,7 @@ export default function EditProduct() {
     try {
 
       const res = await api.get(
-        `/brand/get_active_brand?company_id=${company_id}&category_id=${category_id}&subcategory_id=${subcategory_id}`
+        `/brand/get_active_brand?company_id=${company_id}&category_id=${category_id}&subcategory_id=${subcategory_id || 0}`
       );
 
       if (res.data.status) {
@@ -943,8 +961,8 @@ export default function EditProduct() {
           await fetchSubCategories(p.company_id, p.category_id);
         }
 
-        if (p.category_id && p.subcategory_id) {
-          await fetchBrands(p.company_id, p.category_id, p.subcategory_id);
+        if (p.category_id) {
+          await fetchBrands(p.company_id, p.category_id, p.subcategory_id || 0);
         }
 
         setForm({
@@ -958,8 +976,43 @@ export default function EditProduct() {
           subcategory_id: p.subcategory_id ? String(p.subcategory_id) : "",
           brand_id: p.brand_id ? String(p.brand_id) : "",
           supplier_id: p.supplier_id ? String(p.supplier_id) : "",
-          unit: p.unit || ""
+          unit: p.unit || "",
+          model: p.model || "",
+          processor: p.processor || "",
+          ram: p.ram || "",
+          storage: p.storage || "",
+          storage_type: p.storage_type || "",
+          graphics: p.graphics || "",
+          display_size: p.display_size || "",
+          operating_system: p.operating_system || "",
+          condition_grade: p.condition_grade || "",
+          battery_health: p.battery_health || "",
+          warranty: p.warranty || "",
+          charger_available: String(p.charger_available || 0),
+          description: p.description || "",
+          status: p.status || "active"
         });
+
+        const gallery = [];
+        if (p.image) gallery.push(p.image);
+        if (p.image_gallery_json) {
+          try {
+            let clean = p.image_gallery_json;
+            if (typeof clean === "string") {
+              clean = clean.replace(/\\\\/g, "").replace(/\\\"/g, '"').replace(/\\\//g, "/");
+              clean = JSON.parse(clean);
+            }
+            if (Array.isArray(clean)) {
+              clean.forEach(u => { if (u && !gallery.includes(u)) gallery.push(u); });
+            }
+          } catch (e) {
+            console.warn("Failed to parse image_gallery_json:", e);
+          }
+        } else if (Array.isArray(p.image_gallery)) {
+          p.image_gallery.forEach(u => { if (u && !gallery.includes(u)) gallery.push(u); });
+        }
+        setImageUrls(gallery);
+        setVideoUrls(p.video_url ? [p.video_url] : []);
 
       }
 
@@ -1007,8 +1060,6 @@ export default function EditProduct() {
   const handleUpdate = async () => {
     if (!form.name.trim())    { show("warn", "Missing Field", "Product name is required."); return; }
     if (!form.category_id)    { show("warn", "Missing Field", "Please select a category."); return; }
-    if (!form.subcategory_id) { show("warn", "Missing Field", "Please select a sub category."); return; }
-    if (!form.brand_id)          { show("warn", "Missing Field", "Please select a brand."); return; }
 
     if (!form.price)          { show("warn", "Missing Field", "Price is required."); return; }
     if (isNaN(Number(form.price)) || Number(form.price) < 0) { show("warn", "Invalid Price", "Please enter a valid price."); return; }
@@ -1030,13 +1081,30 @@ export default function EditProduct() {
         category_id: form.category_id,
         subcategory_id: form.subcategory_id,
         brand_id: form.brand_id,
-         supplier_id: form.supplier_id,
+        supplier_id: form.supplier_id,
         company_id: selectedCompany,
+        model: form.model,
+        processor: form.processor,
+        ram: form.ram,
+        storage: form.storage,
+        storage_type: form.storage_type,
+        graphics: form.graphics,
+        display_size: form.display_size,
+        operating_system: form.operating_system,
+        condition_grade: form.condition_grade,
+        battery_health: form.battery_health,
+        warranty: form.warranty,
+        charger_available: form.charger_available,
+        description: form.description,
+        status: form.status,
         price: form.price,
         stock: form.stock,
         gst_percentage: gstEnabled ? form.gst : "",
         barcode: form.barcode,
-        unit: form.unit
+        unit: form.unit,
+        image: imageUrls[0] || "",
+        image_gallery_json: JSON.stringify(imageUrls.slice(1)),
+        video_url: videoUrls[0] || ""
       });
       if (res.data.status) {
         show("success", "Product Updated!", `"${form.name}" saved successfully.`);
@@ -1444,7 +1512,7 @@ export default function EditProduct() {
                         set("brand_id", "");
 
                         fetchSubCategories(selectedCompany, categoryId);
-                        setBrands([]);
+                        fetchBrands(selectedCompany, categoryId, 0);
 
                       }}
                     >
@@ -1459,7 +1527,7 @@ export default function EditProduct() {
             </div>
 
             <div className="ep-field">
-              <label className="ep-label">Sub Category <span style={{color:"#ef4444"}}>*</span></label>
+              <label className="ep-label">Sub Category <span style={{fontSize:"9.5px", textTransform:"none", color:"#94a3b8"}}>(Optional)</span></label>
               {fetching
                 ? <div className="ep-skel" />
                 : <div className="ep-select-wrap ep-input-wrap">
@@ -1487,7 +1555,7 @@ export default function EditProduct() {
             </div>
 
             <div className="ep-field">
-              <label className="ep-label">Brand <span style={{color:"#ef4444"}}>*</span></label>
+              <label className="ep-label">Brand <span style={{fontSize:"9.5px", textTransform:"none", color:"#94a3b8"}}>(Optional)</span></label>
               {fetching
                 ? <div className="ep-skel" />
                 : <div className="ep-select-wrap ep-input-wrap">
@@ -1569,6 +1637,185 @@ export default function EditProduct() {
                     <span className="ep-select-arrow">▾</span>
                   </div>
               }
+            </div>
+
+            <p className="ep-section" style={{marginTop:"1.25rem"}}>Laptop Details</p>
+            <div className="ep-grid-2">
+              <div className="ep-field">
+                <label className="ep-label">Model</label>
+                <div className="ep-input-wrap">
+                  <span className="ep-input-icon">💻</span>
+                  <input className="ep-input" placeholder="Model"
+                    value={form.model}
+                    onChange={e => set("model", e.target.value)} />
+                </div>
+              </div>
+              <div className="ep-field">
+                <label className="ep-label">Processor</label>
+                <div className="ep-input-wrap">
+                  <span className="ep-input-icon">⚙️</span>
+                  <input className="ep-input" placeholder="Processor"
+                    value={form.processor}
+                    onChange={e => set("processor", e.target.value)} />
+                </div>
+              </div>
+            </div>
+
+            <div className="ep-grid-2">
+              <div className="ep-field">
+                <label className="ep-label">RAM</label>
+                <div className="ep-input-wrap">
+                  <span className="ep-input-icon">🧠</span>
+                  <input className="ep-input" placeholder="e.g. 8GB"
+                    value={form.ram}
+                    onChange={e => set("ram", e.target.value)} />
+                </div>
+              </div>
+              <div className="ep-field">
+                <label className="ep-label">Storage</label>
+                <div className="ep-input-wrap">
+                  <span className="ep-input-icon">💾</span>
+                  <input className="ep-input" placeholder="e.g. 512GB"
+                    value={form.storage}
+                    onChange={e => set("storage", e.target.value)} />
+                </div>
+              </div>
+            </div>
+
+            <div className="ep-grid-2">
+              <div className="ep-field">
+                <label className="ep-label">Storage Type</label>
+                <div className="ep-input-wrap">
+                  <span className="ep-input-icon">🗄️</span>
+                  <input className="ep-input" placeholder="e.g. SSD / HDD"
+                    value={form.storage_type}
+                    onChange={e => set("storage_type", e.target.value)} />
+                </div>
+              </div>
+              <div className="ep-field">
+                <label className="ep-label">Graphics</label>
+                <div className="ep-input-wrap">
+                  <span className="ep-input-icon">🎮</span>
+                  <input className="ep-input" placeholder="Graphics"
+                    value={form.graphics}
+                    onChange={e => set("graphics", e.target.value)} />
+                </div>
+              </div>
+            </div>
+
+            <div className="ep-grid-2">
+              <div className="ep-field">
+                <label className="ep-label">Display Size</label>
+                <div className="ep-input-wrap">
+                  <span className="ep-input-icon">🖥️</span>
+                  <input className="ep-input" placeholder="e.g. 15.6 inch"
+                    value={form.display_size}
+                    onChange={e => set("display_size", e.target.value)} />
+                </div>
+              </div>
+              <div className="ep-field">
+                <label className="ep-label">Operating System</label>
+                <div className="ep-input-wrap">
+                  <span className="ep-input-icon">🪟</span>
+                  <input className="ep-input" placeholder="Operating system"
+                    value={form.operating_system}
+                    onChange={e => set("operating_system", e.target.value)} />
+                </div>
+              </div>
+            </div>
+
+            <div className="ep-grid-2">
+              <div className="ep-field">
+                <label className="ep-label">Condition Grade</label>
+                <div className="ep-input-wrap">
+                  <span className="ep-input-icon">⭐</span>
+                  <input className="ep-input" placeholder="e.g. A / B / C"
+                    value={form.condition_grade}
+                    onChange={e => set("condition_grade", e.target.value)} />
+                </div>
+              </div>
+              <div className="ep-field">
+                <label className="ep-label">Battery Health</label>
+                <div className="ep-input-wrap">
+                  <span className="ep-input-icon">🔋</span>
+                  <input className="ep-input" placeholder="e.g. 85%"
+                    value={form.battery_health}
+                    onChange={e => set("battery_health", e.target.value)} />
+                </div>
+              </div>
+            </div>
+
+            <div className="ep-grid-2">
+              <div className="ep-field">
+                <label className="ep-label">Warranty</label>
+                <div className="ep-input-wrap">
+                  <span className="ep-input-icon">🛡️</span>
+                  <input className="ep-input" placeholder="Warranty"
+                    value={form.warranty}
+                    onChange={e => set("warranty", e.target.value)} />
+                </div>
+              </div>
+              <div className="ep-field">
+                <label className="ep-label">Charger Available</label>
+                <div className="ep-select-wrap ep-input-wrap">
+                  <span className="ep-input-icon">🔌</span>
+                  <select
+                    className="ep-select"
+                    value={String(form.charger_available)}
+                    onChange={e => set("charger_available", e.target.value)}
+                  >
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                  </select>
+                  <span className="ep-select-arrow">▾</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="ep-field">
+              <label className="ep-label">Description</label>
+              <textarea
+                className="ep-input"
+                style={{ minHeight: 110, resize: 'vertical', paddingTop: 14 }}
+                placeholder="Product description"
+                value={form.description}
+                onChange={e => set("description", e.target.value)}
+              />
+            </div>
+
+            <div className="ep-divider" />
+            <p className="ep-section">Product Media (Cloudinary)</p>
+
+            <MediaUploader
+              type="image"
+              maxCount={5}
+              label="Product Images (first image = main photo)"
+              value={imageUrls}
+              onChange={setImageUrls}
+            />
+
+            <MediaUploader
+              type="video"
+              maxCount={1}
+              label="Product Video"
+              value={videoUrls}
+              onChange={setVideoUrls}
+            />
+
+            <div className="ep-field">
+              <label className="ep-label">Status</label>
+              <div className="ep-select-wrap ep-input-wrap">
+                <span className="ep-input-icon">🟢</span>
+                <select
+                  className="ep-select"
+                  value={form.status}
+                  onChange={e => set("status", e.target.value)}
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+                <span className="ep-select-arrow">▾</span>
+              </div>
             </div>
 
             {/* ── GST (conditional) ── */}

@@ -14,7 +14,7 @@ import {
   Heart,
   ShoppingBag,
   Award,
-  Lock, // ✅ Added for password icon
+  Lock,
 } from "lucide-react";
 import { API_BASE_URL } from "../services/api";
 
@@ -28,7 +28,7 @@ function ProfilePage() {
   const [message, setMessage] = useState({ type: "", text: "" });
   const [isEditing, setIsEditing] = useState(false);
 
-  // ✅ State for change password
+  // State for change password
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -85,7 +85,7 @@ function ProfilePage() {
     }
   };
 
-  // ✅ Handle password change
+  // Handle password change
   const handlePasswordChange = async (e) => {
     e.preventDefault();
     setPasswordMessage({ type: "", text: "" });
@@ -108,7 +108,7 @@ function ProfilePage() {
 
     setPasswordLoading(true);
     try {
-      const result = await changePassword(currentPassword, newPassword); // ✅ use context method
+      const result = await changePassword(currentPassword, newPassword);
       if (result?.status) {
         setPasswordMessage({
           type: "success",
@@ -133,13 +133,14 @@ function ProfilePage() {
       setPasswordLoading(false);
     }
   };
+
   if (!user) {
     return (
       <div
         className="min-h-screen flex items-center justify-center bg-cover bg-center"
         style={{
           backgroundImage:
-            "url('https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')",
+            "url('https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')",
         }}
       >
         <div className="absolute inset-0 bg-black/50"></div>
@@ -167,7 +168,7 @@ function ProfilePage() {
       className="min-h-screen bg-cover bg-center bg-fixed"
       style={{
         backgroundImage:
-          "url('https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')",
+          "url('https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')",
       }}
     >
       {/* Overlay */}
@@ -226,10 +227,11 @@ function ProfilePage() {
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-8 border border-white/20">
           {message.text && (
             <div
-              className={`mb-6 p-4 rounded-xl flex items-start gap-3 ${message.type === "success"
+              className={`mb-6 p-4 rounded-xl flex items-start gap-3 ${
+                message.type === "success"
                   ? "bg-green-50 text-green-700 border border-green-200"
                   : "bg-red-50 text-red-700 border border-red-200"
-                }`}
+              }`}
             >
               {message.type === "success" ? (
                 <CheckCircle size={20} className="flex-shrink-0 mt-0.5" />
@@ -268,10 +270,11 @@ function ProfilePage() {
                   onChange={handleChange}
                   required
                   disabled={!isEditing}
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#a97c50] focus:border-transparent transition ${isEditing
+                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#a97c50] focus:border-transparent transition ${
+                    isEditing
                       ? "border-gray-300 bg-white"
                       : "border-gray-200 bg-gray-50 text-gray-600 cursor-not-allowed"
-                    }`}
+                  }`}
                   placeholder="Enter your full name"
                 />
               </div>
@@ -304,10 +307,11 @@ function ProfilePage() {
                 value={formData.phone}
                 onChange={handleChange}
                 disabled={!isEditing}
-                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#a97c50] focus:border-transparent transition ${isEditing
+                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#a97c50] focus:border-transparent transition ${
+                  isEditing
                     ? "border-gray-300 bg-white"
                     : "border-gray-200 bg-gray-50 text-gray-600 cursor-not-allowed"
-                  }`}
+                }`}
                 placeholder="Enter your 10-digit phone number"
               />
               {isEditing && (
@@ -328,10 +332,11 @@ function ProfilePage() {
                 onChange={handleChange}
                 rows={3}
                 disabled={!isEditing}
-                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#a97c50] focus:border-transparent transition ${isEditing
+                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#a97c50] focus:border-transparent transition ${
+                  isEditing
                     ? "border-gray-300 bg-white"
                     : "border-gray-200 bg-gray-50 text-gray-600 cursor-not-allowed"
-                  }`}
+                }`}
                 placeholder="Enter your complete shipping address"
               />
             </div>
@@ -391,7 +396,7 @@ function ProfilePage() {
             </div>
           )}
 
-          {/* ✅ Change Password Section */}
+          {/* Change Password Section */}
           <div className="mt-8 pt-6 border-t border-gray-200">
             <button
               onClick={() => {
@@ -411,10 +416,11 @@ function ProfilePage() {
               >
                 {passwordMessage.text && (
                   <div
-                    className={`p-3 rounded-lg text-sm flex items-center gap-2 ${passwordMessage.type === "success"
+                    className={`p-3 rounded-lg text-sm flex items-center gap-2 ${
+                      passwordMessage.type === "success"
                         ? "bg-green-50 text-green-700"
                         : "bg-red-50 text-red-700"
-                      }`}
+                    }`}
                   >
                     {passwordMessage.type === "success" ? (
                       <CheckCircle size={16} />
@@ -486,7 +492,7 @@ function ProfilePage() {
 
         {/* Decorative Footer */}
         <div className="mt-8 text-center text-white/60 text-sm">
-          <p>✨ Bridal Boutique - Where Dreams Meet Elegance ✨</p>
+          <p>✨ Second Laptop Store - Premium Technology ✨</p>
         </div>
       </div>
     </div>

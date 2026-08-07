@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#E1EDFF"/>
+  <rect x="100" y="60" width="200" height="130" rx="10" fill="#5B8DEF"/>
+  <rect x="115" y="75" width="170" height="100" rx="4" fill="#FFFFFF"/>
+  <rect x="130" y="190" width="140" height="12" rx="6" fill="#3E6FDB"/>
+  <circle cx="330" cy="150" r="10" fill="#3271D7"/>
+  <text x="200" y="275" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#3271D7" text-anchor="middle">LAPTOP DEAL</text>
+</svg>

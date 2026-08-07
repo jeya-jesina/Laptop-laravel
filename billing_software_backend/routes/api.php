@@ -15,8 +15,13 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\SubcategoryController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\SupplierProductController;
+use App\Http\Controllers\Api\BudgetController;
+use App\Http\Controllers\Api\ProfessionController;
 use App\Http\Controllers\Api\WhatsappController;
 use App\Http\Controllers\Api\PurchaseController;
+use App\Http\Controllers\Api\ShopController;
+use App\Http\Controllers\Api\MediaController;
+use App\Http\Controllers\Api\BannerController;
 
 // ── AUTH ROUTES ──
 Route::prefix('auth')->group(function () {
@@ -27,6 +32,47 @@ Route::prefix('auth')->group(function () {
     Route::post('send_otp_for_credit', [AuthController::class, 'sendOtpForCredit']);
     Route::post('verify_otp', [AuthController::class, 'verifyOtp']);
     Route::post('logout', [AuthController::class, 'logout']);
+    Route::post('update_profile', [AuthController::class, 'updateProfile']);
+    Route::post('change_password', [AuthController::class, 'changePassword']);
+    Route::post('reset_password', [AuthController::class, 'resetPassword']);
+});
+
+// ── SHOP ROUTES (E-commerce storefront) ──
+Route::prefix('shop')->group(function () {
+    Route::get('menu', [ShopController::class, 'menu']);
+    Route::get('products', [ShopController::class, 'index']);
+    Route::get('products/filters', [ShopController::class, 'filters']);
+    Route::get('products/{id}', [ShopController::class, 'show']);
+
+    Route::get('cart', [ShopController::class, 'cartIndex']);
+    Route::post('cart', [ShopController::class, 'cartStore']);
+    Route::post('cart/{id}', [ShopController::class, 'cartUpdate']);
+    Route::delete('cart/{id}', [ShopController::class, 'cartDestroy']);
+    Route::delete('cart', [ShopController::class, 'cartClear']);
+
+    Route::get('wishlist', [ShopController::class, 'wishlistIndex']);
+    Route::post('wishlist', [ShopController::class, 'wishlistStore']);
+    Route::delete('wishlist/{id}', [ShopController::class, 'wishlistDestroy']);
+
+    Route::post('checkout', [ShopController::class, 'checkout']);
+    Route::get('orders', [ShopController::class, 'orders']);
+    Route::get('orders/{id}/invoice', [ShopController::class, 'orderInvoice']);
+});
+
+// ── MEDIA ROUTES (Cloudinary uploads) ──
+Route::prefix('media')->group(function () {
+    Route::post('upload', [MediaController::class, 'upload']);
+});
+
+// ── BANNER ROUTES ──
+Route::prefix('banner')->group(function () {
+    Route::post('create', [BannerController::class, 'create']);
+    Route::get('get_active', [BannerController::class, 'getActive']);
+    Route::get('get_all', [BannerController::class, 'getAll']);
+    Route::get('get_by_id', [BannerController::class, 'getById']);
+    Route::post('status_toggle', [BannerController::class, 'statusToggle']);
+    Route::post('update', [BannerController::class, 'update']);
+    Route::post('delete', [BannerController::class, 'delete']);
 });
 
 // ── ADMIN ROUTES ──
@@ -47,6 +93,29 @@ Route::prefix('brand')->group(function () {
     Route::get('get_by_id', [BrandController::class, 'getById']);
     Route::post('status_toggle', [BrandController::class, 'statusToggle']);
     Route::post('update', [BrandController::class, 'update']);
+    Route::post('delete', [BrandController::class, 'delete']);
+});
+
+// ── BUDGET ROUTES ──
+Route::prefix('budget')->group(function () {
+    Route::post('create', [BudgetController::class, 'create']);
+    Route::get('get_active', [BudgetController::class, 'getActive']);
+    Route::get('get_all', [BudgetController::class, 'getAll']);
+    Route::get('get_by_id', [BudgetController::class, 'getById']);
+    Route::post('status_toggle', [BudgetController::class, 'statusToggle']);
+    Route::post('update', [BudgetController::class, 'update']);
+    Route::post('delete', [BudgetController::class, 'delete']);
+});
+
+// ── PROFESSION ROUTES ──
+Route::prefix('profession')->group(function () {
+    Route::post('create', [ProfessionController::class, 'create']);
+    Route::get('get_active', [ProfessionController::class, 'getActive']);
+    Route::get('get_all', [ProfessionController::class, 'getAll']);
+    Route::get('get_by_id', [ProfessionController::class, 'getById']);
+    Route::post('status_toggle', [ProfessionController::class, 'statusToggle']);
+    Route::post('update', [ProfessionController::class, 'update']);
+    Route::post('delete', [ProfessionController::class, 'delete']);
 });
 
 // ── CASHIER ROUTES ──

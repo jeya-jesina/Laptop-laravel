@@ -219,17 +219,6 @@ const subcategory_id = Number(selectedSubcategory);
       show("warn", "Missing field", "Please select a category.");
       return;
     }
-    if(!subcategory_id){
-
-  show(
-    "warn",
-    "Missing field",
-    "Please select a subcategory."
-  );
-
-  return;
-
-}
     if (!name.trim()) {
       show("warn", "Missing field", "Subcategory name is required.");
       return;
@@ -634,7 +623,7 @@ const subcategory_id = Number(selectedSubcategory);
             <div className="sbf-field">
 
   <div className="sbf-label-row">
-    <span className="sbf-label">Select Subcategory</span>
+    <span className="sbf-label">Select Subcategory <span style={{fontSize:"9.5px", textTransform:"none", color:"#94a3b8"}}>(Optional)</span></span>
   </div>
 
   <select

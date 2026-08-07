@@ -17,7 +17,12 @@ export default function Product() {
     const [filters, setFilters] = useState({
         price_min: 0,
         price_max: 1000000,
-        sizes: [],
+        brand_ids: [],
+        processors: [],
+        rams: [],
+        storages: [],
+        conditions: [],
+        operating_systems: [],
         availability: 'all',
         rating: 0,
         sort_by: 'newest',
@@ -31,18 +36,97 @@ export default function Product() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Get category_id from URL
+    // Get category_id and subcategory_id from URL
     const categoryId = useMemo(() => {
         const params = new URLSearchParams(location.search);
         const id = params.get("category_id");
         return id ? parseInt(id, 10) : null;
     }, [location.search]);
 
+    const subcategoryId = useMemo(() => {
+        const params = new URLSearchParams(location.search);
+        const id = params.get("subcategory_id");
+        return id ? parseInt(id, 10) : null;
+    }, [location.search]);
+
+    const brandId = useMemo(() => {
+        const params = new URLSearchParams(location.search);
+        const id = params.get("brand_id");
+        return id ? parseInt(id, 10) : null;
+    }, [location.search]);
+
+    const budgetId = useMemo(() => {
+        const params = new URLSearchParams(location.search);
+        const id = params.get("budget_id");
+        return id ? parseInt(id, 10) : null;
+    }, [location.search]);
+
+    const professionId = useMemo(() => {
+        const params = new URLSearchParams(location.search);
+        const id = params.get("profession_id");
+        return id ? parseInt(id, 10) : null;
+    }, [location.search]);
+
+    // Resolve the selected category/subcategory name from the shop menu
+    const [categoryName, setCategoryName] = useState("");
+    const [subcategoryName, setSubcategoryName] = useState("");
+    const [brandName, setBrandName] = useState("");
+    const [budgetName, setBudgetName] = useState("");
+    const [professionName, setProfessionName] = useState("");
+
+    useEffect(() => {
+        let active = true;
+        const resolveNames = async () => {
+            if (!categoryId && !brandId && !budgetId && !professionId) {
+                setCategoryName("");
+                setSubcategoryName("");
+                setBrandName("");
+                setBudgetName("");
+                setProfessionName("");
+                return;
+            }
+            try {
+                const savedCompany = parseInt(localStorage.getItem("selected_company_id") || "1", 10);
+                const res = await api.get('/shop/menu', { params: { company_id: savedCompany } });
+                if (res.data?.success || res.data?.status) {
+                    const data = res.data?.data || res.data;
+                    if (active) {
+                        if (categoryId) {
+                            const all = [...(data.header_categories || []), ...(data.shop_all || [])];
+                            const cat = all.find(c => c.id === categoryId);
+                            setCategoryName(cat?.name || "");
+                            const sub = cat?.subcategories?.find(s => s.id === subcategoryId);
+                            setSubcategoryName(sub?.name || "");
+                        } else {
+                            setCategoryName("");
+                            setSubcategoryName("");
+                        }
+                        const brand = (data.brands || []).find(b => b.id === brandId);
+                        setBrandName(brand?.name || "");
+                        const budget = (data.budgets || []).find(b => b.id === budgetId);
+                        setBudgetName(
+                            budget
+                                ? `₹${Number(budget.min_price || 0).toLocaleString("en-IN")}${budget.max_price ? ` - ₹${Number(budget.max_price).toLocaleString("en-IN")}` : "+"}`
+                                : ""
+                        );
+                        const profession = (data.professions || []).find(p => p.id === professionId);
+                        setProfessionName(profession?.name || "");
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to resolve category name:", error);
+            }
+        };
+        resolveNames();
+        return () => { active = false; };
+    }, [categoryId, subcategoryId, brandId, budgetId, professionId]);
+
     // Fetch filter options
     useEffect(() => {
-        const fetchFilterOptions = async () => {
+        const fetchFilterOptions = async (companyOverride) => {
             try {
-                const companyId = parseInt(localStorage.getItem("selected_company_id") || "1", 10);
+                const savedCompany = parseInt(localStorage.getItem("selected_company_id") || "1", 10);
+                const companyId = companyOverride || savedCompany;
                 const params = { company_id: companyId };
                 if (categoryId) {
                     params.category_id = categoryId;
@@ -55,6 +139,9 @@ export default function Product() {
                         ...prev,
                         availableOptions: payload
                     }));
+                    if (companyId !== 1 && (!payload?.categories || payload.categories.length === 0)) {
+                        await fetchFilterOptions(1);
+                    }
                 }
             } catch (error) {
                 console.error("Failed to load filter options:", error);
@@ -64,19 +151,34 @@ export default function Product() {
     }, [categoryId]);
 
     // Fetch products with filters
-    const fetchProducts = async () => {
+    const fetchProducts = async (companyOverride) => {
         try {
             setLoading(true);
-            const companyId = parseInt(localStorage.getItem("selected_company_id") || "1", 10);
+            const savedCompany = parseInt(localStorage.getItem("selected_company_id") || "1", 10);
+            const companyId = companyOverride || savedCompany;
 
             const response = await api.get('/shop/products', {
                 params: {
                     company_id: companyId,
                     category_id: categoryId || 0,
+                    subcategory_id: subcategoryId || 0,
+                    brand_id: brandId || 0,
+                    budget_id: budgetId || 0,
+                    profession_id: professionId || 0,
                     search: filters.search || '',
                     sort: filters.sort_by || 'newest',
                     per_page: filters.limit || 20,
                     page: Math.floor((filters.offset || 0) / (filters.limit || 20)) + 1,
+                    price_min: filters.price_min || 0,
+                    price_max: filters.price_max || 0,
+                    brand_id: (filters.brand_ids || []).join(','),
+                    processor: (filters.processors || []).join(','),
+                    ram: (filters.rams || []).join(','),
+                    storage: (filters.storages || []).join(','),
+                    condition_grade: (filters.conditions || []).join(','),
+                    operating_system: (filters.operating_systems || []).join(','),
+                    availability: filters.availability || '',
+                    rating: filters.rating || 0,
                 }
             });
 
@@ -93,6 +195,9 @@ export default function Product() {
                 }));
                 setProducts(productsWithResolvedImages);
                 setTotalProducts(payload?.total || list.length || 0);
+                if (list.length === 0 && companyId !== 1) {
+                    await fetchProducts(1);
+                }
             } else {
                 console.error("API returned error:", response.data);
             }
@@ -106,7 +211,7 @@ export default function Product() {
 
     useEffect(() => {
         fetchProducts();
-    }, [filters.sort_by, filters.limit, filters.offset, categoryId]);
+    }, [filters.sort_by, filters.limit, filters.offset, categoryId, subcategoryId, brandId, budgetId, professionId]);
 
     const applyFilters = () => {
         setFilters(prev => ({ ...prev, offset: 0 }));
@@ -120,7 +225,12 @@ export default function Product() {
         setFilters({
             price_min: 0,
             price_max: filterOptions?.price_range?.max || 1000000,
-            sizes: [],
+            brand_ids: [],
+            processors: [],
+            rams: [],
+            storages: [],
+            conditions: [],
+            operating_systems: [],
             availability: 'all',
             rating: 0,
             sort_by: 'newest',
@@ -229,7 +339,12 @@ export default function Product() {
     };
 
     const activeFilterCount =
-        (filters.sizes || []).length +
+        (filters.brand_ids || []).length +
+        (filters.processors || []).length +
+        (filters.rams || []).length +
+        (filters.storages || []).length +
+        (filters.conditions || []).length +
+        (filters.operating_systems || []).length +
         (filters.availability !== 'all' ? 1 : 0) +
         (filters.rating > 0 ? 1 : 0) +
         (filters.price_min > 0 ? 1 : 0);
@@ -240,9 +355,11 @@ export default function Product() {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h1 className="text-2xl font-semibold text-gray-900">Products</h1>
+                        <h1 className="text-2xl font-semibold text-gray-900">
+                            {brandName || budgetName || professionName || categoryName || "Products"}
+                        </h1>
                         <p className="text-sm text-gray-500 mt-1">
-                            {totalProducts} products found
+                            {subcategoryName ? `${subcategoryName} · ` : ""}{totalProducts} products found
                         </p>
                     </div>
 

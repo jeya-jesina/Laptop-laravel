@@ -22,6 +22,8 @@ import {
   UserCog,
   ClipboardList,
   Building,
+  Wallet,
+  Image,
 } from "lucide-react";
 
 export default function MainLayout() {
@@ -65,6 +67,8 @@ export default function MainLayout() {
           { name: "Company", path: "/company", icon: <Building2 size={20} /> },
           { name: "Category & Subcategory", path: "/category", icon: <Package size={20} /> },
           { name: "Brand", path: "/brand", icon: <Tags size={20} /> },
+          { name: "Budget", path: "/budget", icon: <Wallet size={20} /> },
+          { name: "Banners", path: "/banner", icon: <Image size={20} /> },
           { name: "supplier", path: "/supplier", icon: <Truck size={20} /> },
           { name: "Products", path: "/products", icon: <PackageSearch size={20} /> },
           { name: "Purchases", path: "/purchases", icon: <ClipboardList size={20} /> },

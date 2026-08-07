@@ -67,6 +67,8 @@ class AuthController extends Controller
                         "id"         => $user->id,
                         "name"       => $user->name,
                         "email"      => $user->email,
+                        "phone"      => $user->phone,
+                        "address"    => $user->address,
                         "company_id" => $user->company_id,
                         "admin_id"   => $user->admin_id
                     ]
@@ -104,6 +106,8 @@ class AuthController extends Controller
         $email = $request->input('email', '');
         $password = $request->input('password', '');
         $role = $request->input('role', '');
+        $phone = trim($request->input('phone', ''));
+        $address = trim($request->input('address', ''));
         $admin_id = intval($request->input('admin_id', 0));
         $company_id = intval($request->input('company_id', 0));
         $requested_by = intval($request->input('requested_by', 0));
@@ -115,7 +119,7 @@ class AuthController extends Controller
             ]);
         }
 
-        if (!in_array($role, ['superadmin', 'cashier', 'admin'])) {
+        if (!in_array($role, ['superadmin', 'cashier', 'admin', 'user'])) {
             return response()->json([
                 "status" => false,
                 "message" => "Invalid role"
@@ -165,6 +169,8 @@ class AuthController extends Controller
                 'email' => $email,
                 'password' => $hashed,
                 'role' => $role,
+                'phone' => $phone ?: null,
+                'address' => $address ?: null,
                 'admin_id' => $admin_id ?: null,
                 'company_id' => $company_id ?: null
             ]);
@@ -403,6 +409,133 @@ class AuthController extends Controller
         return response()->json([
             "status" => true,
             "message" => "Logged out successfully"
+        ]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user_id = intval($request->input('user_id', 0));
+        $name    = trim($request->input('name', ''));
+        $phone   = trim($request->input('phone', ''));
+        $address = trim($request->input('address', ''));
+
+        if (!$user_id) {
+            return response()->json([
+                "status" => false,
+                "message" => "User ID required"
+            ]);
+        }
+
+        $user = User::find($user_id);
+        if (!$user) {
+            return response()->json([
+                "status" => false,
+                "message" => "User not found"
+            ]);
+        }
+
+        $updates = [];
+        if ($name !== '') {
+            $updates['name'] = $name;
+        }
+        if ($phone !== '') {
+            $updates['phone'] = $phone;
+        }
+        if ($address !== '') {
+            $updates['address'] = $address;
+        }
+
+        if (count($updates) > 0) {
+            $user->update($updates);
+        }
+
+        return response()->json([
+            "status" => true,
+            "message" => "Profile updated successfully",
+            "data" => [
+                "id"         => $user->id,
+                "name"       => $user->name,
+                "email"      => $user->email,
+                "phone"      => $user->phone,
+                "address"    => $user->address,
+                "company_id" => $user->company_id
+            ]
+        ]);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $user_id           = intval($request->input('user_id', 0));
+        $current_password  = trim($request->input('current_password', ''));
+        $new_password      = trim($request->input('new_password', ''));
+
+        if (!$user_id || !$current_password || !$new_password) {
+            return response()->json([
+                "status" => false,
+                "message" => "All fields required"
+            ]);
+        }
+
+        $user = User::find($user_id);
+        if (!$user) {
+            return response()->json([
+                "status" => false,
+                "message" => "User not found"
+            ]);
+        }
+
+        if (!Hash::check($current_password, $user->password)) {
+            return response()->json([
+                "status" => false,
+                "message" => "Current password is incorrect"
+            ]);
+        }
+
+        $user->update(['password' => Hash::make($new_password)]);
+
+        return response()->json([
+            "status" => true,
+            "message" => "Password changed successfully"
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $token            = trim($request->input('token', ''));
+        $password         = trim($request->input('password', ''));
+        $confirm_password = trim($request->input('confirm_password', ''));
+
+        if (!$token || !$password) {
+            return response()->json([
+                "status" => false,
+                "message" => "Token and password required"
+            ]);
+        }
+
+        if ($confirm_password !== '' && $password !== $confirm_password) {
+            return response()->json([
+                "status" => false,
+                "message" => "Passwords do not match"
+            ]);
+        }
+
+        $user = User::where('otp', $token)->orWhere('active_token', $token)->first();
+        if (!$user) {
+            return response()->json([
+                "status" => false,
+                "message" => "Invalid or expired token"
+            ]);
+        }
+
+        $user->update([
+            'password' => Hash::make($password),
+            'otp' => null,
+            'otp_expiry' => null
+        ]);
+
+        return response()->json([
+            "status" => true,
+            "message" => "Password reset successfully"
         ]);
     }
 }

@@ -48,6 +48,15 @@ import ChangePassword from "../pages/Admin/ChangePassword";
 import BrandForm from "../pages/brand/BrandForm";
 import BrandList from "../pages/brand/BrandList";
 import EditBrand from "../pages/brand/EditBrand";
+import BudgetList from "../pages/budget/BudgetList";
+import BudgetForm from "../pages/budget/BudgetForm";
+import EditBudget from "../pages/budget/EditBudget";
+import BannerList from "../pages/banner/BannerList";
+import BannerForm from "../pages/banner/BannerForm";
+import EditBanner from "../pages/banner/EditBanner";
+import ProfessionList from "../pages/profession/ProfessionList";
+import ProfessionForm from "../pages/profession/ProfessionForm";
+import EditProfession from "../pages/profession/EditProfession";
 import SupplierForm from "../pages/supplier/SupplierForm";
 import SupplierList from "../pages/supplier/SupplierList";
 import EditSupplier from "../pages/supplier/EditSupplier";
@@ -122,6 +131,15 @@ export default function AppRoutes() {
             <Route path="/brand/add" element={<BrandForm />} />
             <Route path="/brand" element={<BrandList />} />
             <Route path="/brand/edit/:id" element={<EditBrand />} />
+            <Route path="/budget/add" element={<BudgetForm />} />
+            <Route path="/budget" element={<BudgetList />} />
+            <Route path="/budget/edit/:id" element={<EditBudget />} />
+            <Route path="/banner/add" element={<BannerForm />} />
+            <Route path="/banner" element={<BannerList />} />
+            <Route path="/banner/edit/:id" element={<EditBanner />} />
+            <Route path="/profession/add" element={<ProfessionForm />} />
+            <Route path="/profession" element={<ProfessionList />} />
+            <Route path="/profession/edit/:id" element={<EditProfession />} />
             <Route path="/supplier/add" element={<SupplierForm />} />
             <Route path="/supplier" element={<SupplierList />} />
             <Route path="/supplier/edit/:id" element={<EditSupplier />} />

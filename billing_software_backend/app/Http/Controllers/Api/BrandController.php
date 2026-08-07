@@ -15,17 +15,17 @@ class BrandController extends Controller
         $subcategory_id = intval($request->input('subcategory_id', 0));
         $company_id = intval($request->input('company_id', 0));
 
-        if (!$name || !$category_id || !$subcategory_id || !$company_id) {
+        if (!$name || !$company_id) {
             return response()->json([
                 "status" => false,
-                "message" => "All fields are required"
+                "message" => "Brand Name and Company are required"
             ]);
         }
 
         Brand::create([
             'name' => $name,
-            'category_id' => $category_id,
-            'subcategory_id' => $subcategory_id,
+            'category_id' => $category_id ?: null,
+            'subcategory_id' => $subcategory_id ?: null,
             'company_id' => $company_id,
             'status' => 'active',
             'is_deleted' => 0
@@ -116,6 +116,25 @@ class BrandController extends Controller
         ]);
     }
 
+    public function delete(Request $request)
+    {
+        $id = intval($request->input('id'));
+
+        if (!$id) {
+            return response()->json([
+                "status" => false,
+                "message" => "Invalid data"
+            ]);
+        }
+
+        Brand::where('id', $id)->update(['is_deleted' => 1]);
+
+        return response()->json([
+            "status" => true,
+            "message" => "Brand deleted successfully"
+        ]);
+    }
+
     public function update(Request $request)
     {
         $id = intval($request->input('id'));
@@ -123,17 +142,17 @@ class BrandController extends Controller
         $category_id = intval($request->input('category_id', 0));
         $subcategory_id = intval($request->input('subcategory_id', 0));
 
-        if (!$id || !$name || !$category_id || !$subcategory_id) {
+        if (!$id || !$name) {
             return response()->json([
                 "status" => false,
-                "message" => "All fields are required"
+                "message" => "Brand Name is required"
             ]);
         }
 
         Brand::where('id', $id)->update([
             'name' => $name,
-            'category_id' => $category_id,
-            'subcategory_id' => $subcategory_id
+            'category_id' => $category_id ?: null,
+            'subcategory_id' => $subcategory_id ?: null
         ]);
 
         return response()->json([

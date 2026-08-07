@@ -26,6 +26,7 @@ class CategoryController extends Controller
             'name' => $name,
             'company_id' => $company_id,
             'status' => 'active',
+            'show_in_header' => $request->has('show_in_header') ? (intval($request->input('show_in_header')) ? 1 : 0) : 1,
             'is_deleted' => 0
         ]);
 
@@ -143,7 +144,12 @@ class CategoryController extends Controller
             ]);
         }
 
-        Category::where('id', $id)->update(['name' => $name]);
+        $updateData = ['name' => $name];
+        if ($request->has('show_in_header')) {
+            $updateData['show_in_header'] = intval($request->input('show_in_header')) ? 1 : 0;
+        }
+
+        Category::where('id', $id)->update($updateData);
 
         return response()->json([
             "status" => true,

@@ -6,6 +6,7 @@ import {
   Pencil,
   ChevronLeft,
   ChevronRight,
+  Trash2,
 } from "lucide-react";
 
 const ITEMS_PER_PAGE = 5;
@@ -104,8 +105,38 @@ export default function BrandList() {
 
   };
 
-  const toggleStatus = async (brand) => {
+  const handleDelete = async (brand) => {
 
+    if (!window.confirm(`Delete brand "${brand.name}"?`)) return;
+
+    try {
+
+      const res = await api.post(
+        "/brand/delete",
+        { id: brand.id }
+      );
+
+      if (res.data.status) {
+
+        setBrands((prev) =>
+          prev.filter((s) => s.id !== brand.id)
+        );
+
+      } else {
+
+        alert(res.data.message);
+
+      }
+
+    } catch (err) {
+
+      console.error(err);
+      alert("Server error");
+
+    }
+  };
+
+  const toggleStatus = async (brand) => {
     const newStatus =
      brand.status === "active"
         ? "inactive"
@@ -321,6 +352,23 @@ export default function BrandList() {
 
         .sl-btn-edit:hover{
           background:#dbeafe;
+        }
+
+        .sl-btn-delete{
+          width:34px;
+          height:34px;
+          border:none;
+          border-radius:10px;
+          background:#fef2f2;
+          color:#dc2626;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          cursor:pointer;
+        }
+
+        .sl-btn-delete:hover{
+          background:#fee2e2;
         }
 
         .sl-switch {
@@ -580,6 +628,14 @@ export default function BrandList() {
                           }
                         >
                           <Pencil size={15} />
+                        </button>
+
+                        <button
+                          className="sl-btn-delete"
+                          onClick={() => handleDelete(s)}
+                          title="Delete"
+                        >
+                          <Trash2 size={15} />
                         </button>
 
                         <label className="sl-switch">

@@ -160,10 +160,6 @@ export default function EditBrand() {
       show("warn", "Missing field", "Please select a category.");
       return;
     }
-    if (!selectedSubcategory) {
-      show("warn", "Missing field", "Please select a subcategory.");
-      return;
-    }
     if (
       name.trim() === originalName &&
       selectedCategory === originalCategory &&
@@ -569,7 +565,7 @@ export default function EditBrand() {
             {/* Subcategory */}
             <div className="ebr-field">
               <div className="ebr-label-row">
-                <span className="ebr-label">Subcategory</span>
+                <span className="ebr-label">Subcategory <span style={{fontSize:"9.5px", textTransform:"none", color:"#94a3b8"}}>(Optional)</span></span>
               </div>
 
               {fetching ? (

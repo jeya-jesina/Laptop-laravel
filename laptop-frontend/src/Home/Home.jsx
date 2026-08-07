@@ -1,24 +1,25 @@
 import React from "react";
 import Banner from "./banner";
-import Celebration from "./celebration";
-import NewArrivals from "./newarrivals";
-import Workflow from "./workflow";
-import SpotlightSection from "./spotlight";
-import EditorsPick from "./editors pick";
-// import ForEveryOccasion from "./ForEveryOccasion";
+import LaptopDeals from "./offer";
+import Deals from "./deals";
+import Customer from "./customer";
+import Clients from "./clients";
+import Enquire from "./enquire";
+import CrazyRefurbished from "./crazyRefurbished";
+import BudgerRefurbished from "./budgerRefurbished";
 
-function Home() {
+
+export default function Home() {
   return (
     <>
       <Banner />
-      <SpotlightSection />
-      {/* <ForEveryOccasion/> */}
-      <NewArrivals />
-      <EditorsPick/>
-      <Celebration />
-      <Workflow />
+      <Deals />
+      <CrazyRefurbished/>
+      <LaptopDeals />
+      <BudgerRefurbished/>
+      <Customer />
+      <Clients />
+      <Enquire />
     </>
   );
 }
-
-export default Home;
