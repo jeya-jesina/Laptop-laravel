@@ -49,6 +49,9 @@ export default function ProductForm() {
   const [existingCodes, setExistingCodes] = useState([]);
 const [companies,setCompanies] = useState([]);
 const [selectedCompany,setSelectedCompany] = useState("");
+const [budgets, setBudgets] = useState([]);
+const [pillForm, setPillForm] = useState({ name: "", min_price: "", max_price: "" });
+const [savingPill, setSavingPill] = useState(false);
 
 
 const [suppliers, setSuppliers] = useState([]);
@@ -142,6 +145,7 @@ const loadCompanies = async(admin_id) => {
     charger_available: "0",
     description: "",
     is_offer: "0",
+    home_budget: "0",
     status: "active"
   });
 
@@ -281,9 +285,131 @@ useEffect(() => {
 
     fetchCategories(selectedCompany);
     fetchCompanyGST(selectedCompany);
-    fetchSuppliers(selectedCompany); 
+    fetchSuppliers(selectedCompany);
+    fetchBudgets(selectedCompany);
 
 }, [selectedCompany]);
+
+const fetchBudgets = async (company_id) => {
+
+  if (!company_id) {
+    setBudgets([]);
+    return;
+  }
+
+  try {
+
+    const res = await api.get(
+      `/budget/get_active?company_id=${company_id}`
+    );
+
+    setBudgets(res.data?.status ? (res.data.data || []) : []);
+
+  } catch (err) {
+
+    console.log(err);
+    setBudgets([]);
+
+  }
+
+};
+
+const handleAddPill = async () => {
+
+  const company_id = Number(selectedCompany);
+  const name = pillForm.name.trim();
+
+  if (!company_id) {
+    show("warn", "Missing Company", "Please select a company first.");
+    return;
+  }
+
+  if (!name) {
+    show("warn", "Missing Field", "Pill name is required.");
+    return;
+  }
+
+  const min = Number(pillForm.min_price);
+  const max = Number(pillForm.max_price);
+
+  if (pillForm.min_price !== "" && (isNaN(min) || min < 0)) {
+    show("warn", "Invalid Value", "Minimum price must be a valid amount.");
+    return;
+  }
+
+  if (pillForm.max_price !== "" && (isNaN(max) || max < 0)) {
+    show("warn", "Invalid Value", "Maximum price must be a valid amount.");
+    return;
+  }
+
+  if (pillForm.min_price !== "" && pillForm.max_price !== "" && min > max) {
+    show("warn", "Invalid Range", "Minimum price cannot be greater than maximum price.");
+    return;
+  }
+
+  setSavingPill(true);
+
+  try {
+
+    const res = await api.post("/budget/create", {
+      name,
+      min_price: pillForm.min_price,
+      max_price: pillForm.max_price,
+      company_id,
+    });
+
+    if (res.data.status) {
+
+      show("success", "Pill Added!", `"${name}" filter pill created.`);
+      setPillForm({ name: "", min_price: "", max_price: "" });
+      fetchBudgets(company_id);
+
+    } else {
+
+      show("error", "Failed", res.data.message || "Something went wrong.");
+
+    }
+
+  } catch (err) {
+
+    console.error(err);
+    show("error", "Server Error", "Unable to reach server. Try again.");
+
+  } finally {
+
+    setSavingPill(false);
+
+  }
+
+};
+
+const handleDeletePill = async (budget) => {
+
+  if (!window.confirm(`Delete filter pill "${budget.name}"?`)) return;
+
+  try {
+
+    const res = await api.post("/budget/delete", { id: budget.id });
+
+    if (res.data.status) {
+
+      show("success", "Pill Deleted!", `"${budget.name}" removed.`);
+      setBudgets(prev => prev.filter(b => Number(b.id) !== Number(budget.id)));
+
+    } else {
+
+      show("error", "Failed", res.data.message || "Something went wrong.");
+
+    }
+
+  } catch (err) {
+
+    console.error(err);
+    show("error", "Server Error", "Unable to reach server. Try again.");
+
+  }
+
+};
 
 
 const handleCompanyChange = (e) => {
@@ -373,6 +499,7 @@ if (
         description: form.description,
         status: form.status,
         is_offer: form.is_offer,
+        home_budget: form.home_budget,
         price: form.price,
         stock: form.stock,
         gst_percentage: gstEnabled ? form.gst : "",
@@ -960,6 +1087,26 @@ if (
               </label>
             </div>
 
+            <div className="pf-field">
+              <label className="pf-label">Home Budget</label>
+              <label
+                className="pf-toggle-row"
+                style={{ display: "flex", alignItems: "center", gap: "0.6rem", cursor: "pointer" }}
+              >
+                <input
+                  type="checkbox"
+                  className="pf-checkbox"
+                  style={{ width: "18px", height: "18px", accentColor: "#2563eb", cursor: "pointer" }}
+                  checked={form.home_budget === "1"}
+                  onChange={e => set("home_budget", e.target.checked ? "1" : "0")}
+                />
+                <span className="pf-hint" style={{ fontSize: "12.5px", color: "#555" }}>
+                  Tick to show this product in the Budget Refurbished Deals section on the homepage.
+                </span>
+              </label>
+            </div>
+
+           
             {/* <div className="pf-field">
               <label className="pf-label">Unit <span style={{color:"#ef4444"}}>*</span></label>
               <div className="pf-input-wrap">

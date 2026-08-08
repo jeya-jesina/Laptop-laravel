@@ -769,6 +769,7 @@ export default function EditProduct() {
     charger_available: "0",
     description: "",
     is_offer: "0",
+    home_budget: "0",
     status: "active"
   });
 
@@ -992,6 +993,7 @@ export default function EditProduct() {
           charger_available: String(p.charger_available || 0),
           description: p.description || "",
           is_offer: String(p.is_offer || 0),
+          home_budget: String(p.home_budget || 0),
           status: p.status || "active"
         });
 
@@ -1100,7 +1102,7 @@ export default function EditProduct() {
         description: form.description,
         status: form.status,
         is_offer: form.is_offer,
-        is_offer: form.is_offer,
+        home_budget: form.home_budget,
         price: form.price,
         stock: form.stock,
         gst_percentage: gstEnabled ? form.gst : "",
@@ -1629,7 +1631,7 @@ export default function EditProduct() {
             </div>
 
             <div className="ep-field" style={{ marginTop: "0.5rem" }}>
-              <label className="ep-label">Offer</label>
+              <label className="ep-label">Home Budget</label>
               <label
                 className="ep-toggle-row"
                 style={{ display: "flex", alignItems: "center", gap: "0.6rem", cursor: "pointer" }}
@@ -1638,11 +1640,11 @@ export default function EditProduct() {
                   type="checkbox"
                   className="ep-checkbox"
                   style={{ width: "18px", height: "18px", accentColor: "#2563eb", cursor: "pointer" }}
-                  checked={form.is_offer === "1"}
-                  onChange={e => set("is_offer", e.target.checked ? "1" : "0")}
+                  checked={form.home_budget === "1"}
+                  onChange={e => set("home_budget", e.target.checked ? "1" : "0")}
                 />
                 <span className="ep-hint" style={{ fontSize: "12.5px", color: "#555" }}>
-                  Tick to show this product in the Crazy Refurbished Deals offers on the homepage.
+                  Tick to show this product in the Budget Refurbished Deals section on the homepage.
                 </span>
               </label>
             </div>

@@ -35,6 +35,7 @@ class ShopController extends Controller
         $availability = trim($request->query('availability', ''));
         $rating       = intval($request->query('rating', 0));
         $offer        = intval($request->query('offer', 0));
+        $home_budget  = intval($request->query('home_budget', 0));
 
         $csv = function ($key) use ($request) {
             $raw = $request->query($key, '');
@@ -165,6 +166,10 @@ class ShopController extends Controller
 
         if ($offer == 1) {
             $query->where('products.is_offer', 1);
+        }
+
+        if ($home_budget == 1) {
+            $query->where('products.home_budget', 1);
         }
 
         switch ($sort) {

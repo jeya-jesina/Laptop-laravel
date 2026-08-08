@@ -109,6 +109,7 @@ class ProductController extends Controller
         $original_price    = floatval($request->input('original_price', 0));
         $status            = trim($request->input('status', 'active'));
         $is_offer          = intval($request->input('is_offer', 0)) ? 1 : 0;
+        $home_budget       = intval($request->input('home_budget', 0)) ? 1 : 0;
 
         if (!$product_name || !$company_id) {
             return response()->json([
@@ -152,6 +153,7 @@ class ProductController extends Controller
             'offer_price' => $offer_price > 0 ? $offer_price : null,
             'original_price' => $original_price > 0 ? $original_price : null,
             'is_offer' => $is_offer,
+            'home_budget' => $home_budget,
             'stock' => $stock,
             'barcode' => $barcode ?: null,
             'unit' => $unit ?: null,
@@ -346,6 +348,7 @@ class ProductController extends Controller
         $original_price   = floatval($request->input('original_price', 0));
         $status           = trim($request->input('status', 'active'));
         $is_offer         = intval($request->input('is_offer', 0)) ? 1 : 0;
+        $home_budget      = intval($request->input('home_budget', 0)) ? 1 : 0;
 
         if (!$id || !$product_name) {
             return response()->json(["status" => false, "message" => "ID and Product Name required"]);
@@ -395,6 +398,7 @@ class ProductController extends Controller
             'offer_price' => $offer_price > 0 ? $offer_price : null,
             'original_price' => $original_price > 0 ? $original_price : null,
             'is_offer' => $is_offer,
+            'home_budget' => $home_budget,
             'stock' => $stock,
             'barcode' => $barcode ?: null,
             'unit' => $unit ?: null,
