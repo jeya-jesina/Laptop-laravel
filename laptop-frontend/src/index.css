@@ -44,6 +44,14 @@ code {
   animation: dropdownIn 0.18s ease both;
 }
 
+@keyframes dropdownInLeft {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.dropdown-panel-left {
+  animation: dropdownInLeft 0.18s ease both;
+}
+
 .dropdown-scroll::-webkit-scrollbar {
   width: 6px;
 }

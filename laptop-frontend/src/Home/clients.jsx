@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api, { resolveMediaUrl } from "../services/api";
+import api, { resolveMediaUrl, getActiveCompanyId } from "../services/api";
 
 const Clients = () => {
   const [logos, setLogos] = useState([]);
@@ -7,10 +7,8 @@ const Clients = () => {
 
   useEffect(() => {
     let active = true;
-    const companyId = parseInt(localStorage.getItem("selected_company_id") || "1", 10);
 
-    const load = (companyOverride) => {
-      const cid = companyOverride || companyId;
+    const load = (cid) => {
       api
         .get("/banner/get_active", {
           params: { company_id: cid, banner_group: "client_logos" },
@@ -19,22 +17,17 @@ const Clients = () => {
           if (!active) return;
           const payload = res.data?.data || res.data;
           const list = Array.isArray(payload) ? payload : payload?.data || [];
-          if (list.length === 0 && cid !== 1) {
-            load(1);
-          } else {
-            setLogos(list);
-          }
+          setLogos(list);
         })
         .catch((err) => {
           console.error("Failed to load client logos:", err);
-          if (active && cid !== 1) load(1);
         })
         .finally(() => {
           if (active) setLoading(false);
         });
     };
 
-    load();
+    getActiveCompanyId().then(load);
 
     return () => {
       active = false;

@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useStore } from "../contexts/StoreContext";
 import { formatCurrency } from "../utils/formatters";
-import api from "../services/api";
+import api, { getActiveCompanyId } from "../services/api";
 
 export default function Checkout() {
   const location = useLocation();
@@ -109,8 +109,10 @@ export default function Checkout() {
     }
 
     try {
+      const companyId = await getActiveCompanyId();
       const response = await api.post('/shop/checkout', {
         user_id: user ? user.id : 0,
+        company_id: companyId,
         customer_name: form.customer_name,
         mobile: form.mobile,
         email: form.email,

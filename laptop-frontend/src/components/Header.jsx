@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useStore } from "../contexts/StoreContext";
 import { useAuth } from "../contexts/AuthContext";
-import api from "../services/api";
+import api, { resolveMediaUrl, getActiveCompanyId } from "../services/api";
 
 const FilterDropdown = ({ label, items, onSelect, renderItem, emptyText }) => {
   const [open, setOpen] = useState(false);
@@ -129,6 +129,9 @@ const Header = () => {
   const { user, logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [suggestions, setSuggestions] = useState({ products: [], brands: [], budgets: [] });
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchRef = useRef(null);
   const [menu, setMenu] = useState({
     header_categories: [],
     all_categories: [],
@@ -145,9 +148,6 @@ const Header = () => {
             const data = res.data?.data || res.data;
             const header = data?.header_categories || [];
             const allCategories = data?.all_categories || [];
-            if (header.length === 0 && allCategories.length === 0 && companyId !== 1) {
-              return loadMenu(1);
-            }
             setMenu({
               header_categories: header,
               all_categories: allCategories,
@@ -158,14 +158,66 @@ const Header = () => {
         })
         .catch((err) => console.error("Failed to load header menu:", err));
 
-    const companyId = parseInt(localStorage.getItem("selected_company_id") || "1", 10);
-    loadMenu(companyId);
+    getActiveCompanyId().then(loadMenu);
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (!q) {
+      setSuggestions({ products: [], brands: [], budgets: [] });
+      setShowSuggestions(false);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      try {
+        const companyId = await getActiveCompanyId();
+        const res = await api.get("/shop/products", {
+          params: { company_id: companyId, search: q, per_page: 5 },
+        });
+        const payload = res.data?.data || res.data;
+        const list = Array.isArray(payload) ? payload : payload?.data || [];
+        const lq = q.toLowerCase();
+        const brands = (menu.brands || []).filter((b) =>
+          (b.name || "").toLowerCase().includes(lq)
+        );
+        const budgets = (menu.budgets || []).filter((b) => {
+          const label = `${b.min_price || 0}-${b.max_price || ""}`.toLowerCase();
+          return label.includes(lq);
+        });
+        setSuggestions({ products: list, brands, budgets });
+        setShowSuggestions(true);
+      } catch (err) {
+        console.error("Failed to load search suggestions:", err);
+      }
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [searchQuery, menu]);
+
+  const goToSuggestion = (path) => {
+    setShowSuggestions(false);
+    setSearchQuery("");
+    navigate(path);
+  };
+
+  const submitSearch = () => {
+    const q = searchQuery.trim();
+    setShowSuggestions(false);
+    navigate(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
-    const q = searchQuery.trim();
-    navigate(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
+    submitSearch();
   };
 
   const goToBrand = (brand) => {
@@ -230,11 +282,12 @@ const Header = () => {
         />
 
         {/* Search */}
-        <form onSubmit={handleSearch} className="relative ml-8">
+        <form onSubmit={handleSearch} className="relative ml-8" ref={searchRef}>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
             placeholder="Search laptops, brands, specs"
             className="
               w-[355px]
@@ -244,7 +297,7 @@ const Header = () => {
               border-[#D9D9D9]
               rounded-md
               pl-11
-              pr-4
+              pr-10
               text-[15px]
               text-[#333333]
               placeholder:text-[#8A8A8A]
@@ -267,6 +320,113 @@ const Header = () => {
               d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z"
             />
           </svg>
+
+          {showSuggestions && (
+            <div className="dropdown-panel-left absolute left-0 top-[42px] w-full bg-white rounded-2xl shadow-[0_24px_60px_rgba(2,32,71,0.18)] border border-gray-100 z-50 overflow-hidden">
+              <div className="max-h-[420px] overflow-y-auto dropdown-scroll py-2 px-2">
+
+                {suggestions.products.length > 0 && (
+                  <div className="mb-1">
+                    <p className="px-3 pt-1.5 pb-1 text-[10px] font-bold tracking-[0.12em] uppercase text-gray-400">
+                      Products
+                    </p>
+                    {suggestions.products.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => goToSuggestion(`/product/${p.id}`)}
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left hover:bg-[#eef4ff] transition-colors duration-150"
+                      >
+                        <img
+                          src={resolveMediaUrl(p.image)}
+                          alt={p.product_name}
+                          className="w-9 h-9 rounded-lg object-contain bg-gray-100 flex-shrink-0"
+                        />
+                        <span className="min-w-0">
+                          <span className="block text-sm font-medium text-gray-800 truncate">
+                            {p.product_name}
+                          </span>
+                          <span className="block text-[11px] text-gray-400 truncate">
+                            {p.brand_name || "Laptop"}
+                            {Number(p.price)
+                              ? ` • ₹${Number(p.price).toLocaleString("en-IN")}`
+                              : ""}
+                          </span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {suggestions.brands.length > 0 && (
+                  <div className="mb-1">
+                    <p className="px-3 pt-1.5 pb-1 text-[10px] font-bold tracking-[0.12em] uppercase text-gray-400">
+                      Brands
+                    </p>
+                    {suggestions.brands.map((b) => (
+                      <button
+                        key={b.id}
+                        type="button"
+                        onClick={() => goToSuggestion(`/bridal-lehenga?brand_id=${b.id}`)}
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left hover:bg-[#eef4ff] transition-colors duration-150"
+                      >
+                        <span className="w-9 h-9 rounded-lg bg-[#eef4ff] text-[#3271D7] flex items-center justify-center font-bold text-sm flex-shrink-0">
+                          {b.name.charAt(0).toUpperCase()}
+                        </span>
+                        <span className="block text-sm font-medium text-gray-800 truncate">
+                          {b.name}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {suggestions.budgets.length > 0 && (
+                  <div className="mb-1">
+                    <p className="px-3 pt-1.5 pb-1 text-[10px] font-bold tracking-[0.12em] uppercase text-gray-400">
+                      Budgets
+                    </p>
+                    {suggestions.budgets.map((b) => (
+                      <button
+                        key={b.id}
+                        type="button"
+                        onClick={() => goToSuggestion(`/bridal-lehenga?budget_id=${b.id}`)}
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left hover:bg-[#eef4ff] transition-colors duration-150"
+                      >
+                        <span className="w-9 h-9 rounded-lg bg-[#fdf1e6] text-[#b45309] flex items-center justify-center text-sm flex-shrink-0">
+                          ₹
+                        </span>
+                        <span className="block text-sm font-medium text-gray-800 truncate">
+                          ₹{Number(b.min_price || 0).toLocaleString("en-IN")}
+                          {b.max_price
+                            ? ` - ₹${Number(b.max_price).toLocaleString("en-IN")}`
+                            : "+"}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {suggestions.products.length === 0 &&
+                  suggestions.brands.length === 0 &&
+                  suggestions.budgets.length === 0 && (
+                    <p className="px-3 py-8 text-center text-sm text-gray-400">
+                      No matches found
+                    </p>
+                  )}
+
+                {searchQuery.trim() && (
+                  <button
+                    type="button"
+                    onClick={() => goToSuggestion(`/search?q=${encodeURIComponent(searchQuery.trim())}`)}
+                    className="w-full flex items-center justify-center gap-2 px-3 py-3 mt-1 rounded-lg text-sm font-semibold text-[#3271D7] hover:bg-[#eef4ff] transition-colors duration-150 border-t border-gray-100"
+                  >
+                    View all results for "{searchQuery.trim()}"
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </form>
       </div>
 

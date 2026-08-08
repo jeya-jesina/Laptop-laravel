@@ -503,6 +503,7 @@ class InvoiceController extends Controller
     public function getInvoiceById(Request $request)
 {
     $idVal = $request->input('id') ?: $request->query('id', '');
+    $orderId = intval($request->input('order_id') ?: $request->query('order_id', 0));
 
     $query = DB::table('invoices as i')
         ->leftJoin('companies as c', 'i.company_id', '=', 'c.id')
@@ -517,7 +518,9 @@ class InvoiceController extends Controller
             'u.name as cashier_name'
         );
 
-    if (is_numeric($idVal)) {
+    if ($orderId > 0) {
+        $invoice = (clone $query)->where('i.order_id', $orderId)->first();
+    } elseif (is_numeric($idVal)) {
         $invoice = (clone $query)->where('i.id', intval($idVal))->first();
     } else {
         $invoice = (clone $query)->where('i.invoice_no', $idVal)->first();

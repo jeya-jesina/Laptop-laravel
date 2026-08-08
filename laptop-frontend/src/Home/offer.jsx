@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api, { resolveMediaUrl } from "../services/api";
+import api, { resolveMediaUrl, getActiveCompanyId } from "../services/api";
 
 export default function LaptopDeals() {
   const navigate = useNavigate();
@@ -9,10 +9,8 @@ export default function LaptopDeals() {
 
   useEffect(() => {
     let active = true;
-    const companyId = parseInt(localStorage.getItem("selected_company_id") || "1", 10);
 
-    const load = (companyOverride) => {
-      const cid = companyOverride || companyId;
+    const load = (cid) => {
       api
         .get("/banner/get_active", {
           params: { company_id: cid, banner_group: "laptop_deals" },
@@ -21,22 +19,17 @@ export default function LaptopDeals() {
           if (!active) return;
           const payload = res.data?.data || res.data;
           const list = Array.isArray(payload) ? payload : payload?.data || [];
-          if (list.length === 0 && cid !== 1) {
-            load(1);
-          } else {
-            setBanners(list);
-          }
+          setBanners(list);
         })
         .catch((err) => {
           console.error("Failed to load laptop deals:", err);
-          if (active && cid !== 1) load(1);
         })
         .finally(() => {
           if (active) setLoading(false);
         });
     };
 
-    load();
+    getActiveCompanyId().then(load);
 
     return () => {
       active = false;

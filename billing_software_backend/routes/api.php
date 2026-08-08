@@ -55,6 +55,7 @@ Route::prefix('shop')->group(function () {
     Route::delete('wishlist/{id}', [ShopController::class, 'wishlistDestroy']);
 
     Route::post('checkout', [ShopController::class, 'checkout']);
+    Route::post('payment/{id}', [ShopController::class, 'orderPayment']);
     Route::get('orders', [ShopController::class, 'orders']);
     Route::get('orders/{id}/invoice', [ShopController::class, 'orderInvoice']);
 });

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import api, { resolveMediaUrl } from '../services/api'
+import api, { resolveMediaUrl, getActiveCompanyId } from '../services/api'
 
 export default function Banner() {
   const [banners, setBanners] = useState([])
@@ -8,34 +8,35 @@ export default function Banner() {
   const [index, setIndex] = useState(0)
 
   useEffect(() => {
-    const companyId = parseInt(localStorage.getItem("selected_company_id") || "1", 10)
+    getActiveCompanyId().then((companyId) => {
 
-    api
-      .get("/banner/get_active", {
-        params: { company_id: companyId, banner_group: "home_top" },
-      })
-      .then((res) => {
-        if (res.data.status && Array.isArray(res.data.data)) {
-          setBanners(res.data.data)
-        }
-      })
-      .catch((err) => {
-        console.error("Failed to load banners:", err)
-      })
+      api
+        .get("/banner/get_active", {
+          params: { company_id: companyId, banner_group: "home_top" },
+        })
+        .then((res) => {
+          if (res.data.status && Array.isArray(res.data.data)) {
+            setBanners(res.data.data)
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to load banners:", err)
+        })
 
-    api
-      .get("/banner/get_active", {
-        params: { company_id: companyId, banner_group: "brand_logo" },
-      })
-      .then((res) => {
-        if (res.data.status && Array.isArray(res.data.data)) {
-          setBrandLogos(res.data.data)
-        }
-      })
-      .catch((err) => {
-        console.error("Failed to load brand logos:", err)
-      })
-      .finally(() => setLoaded(true))
+      api
+        .get("/banner/get_active", {
+          params: { company_id: companyId, banner_group: "brand_logo" },
+        })
+        .then((res) => {
+          if (res.data.status && Array.isArray(res.data.data)) {
+            setBrandLogos(res.data.data)
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to load brand logos:", err)
+        })
+        .finally(() => setLoaded(true))
+    })
   }, [])
 
   const count = banners.length

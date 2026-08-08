@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api, { resolveMediaUrl } from "../services/api";
+import api, { resolveMediaUrl, getActiveCompanyId } from "../services/api";
 import { useStore } from "../contexts/StoreContext";
 import { useAuth } from "../contexts/AuthContext";
 import { showToast } from "../utils/toast";
@@ -25,10 +25,8 @@ export default function CrazyRefurbished() {
 
   useEffect(() => {
     let active = true;
-    const companyId = parseInt(localStorage.getItem("selected_company_id") || "1", 10);
 
-    const load = (companyOverride) => {
-      const cid = companyOverride || companyId;
+    const load = (cid) => {
       api
         .get("/shop/products", {
           params: { company_id: cid, offer: 1, per_page: 10 },
@@ -37,22 +35,17 @@ export default function CrazyRefurbished() {
           if (!active) return;
           const payload = res.data?.data || res.data;
           const list = Array.isArray(payload) ? payload : payload?.data || [];
-          if (list.length === 0 && cid !== 1) {
-            load(1);
-          } else {
-            setProducts(list);
-          }
+          setProducts(list);
         })
         .catch((err) => {
           console.error("Failed to load offers:", err);
-          if (active && cid !== 1) load(1);
         })
         .finally(() => {
           if (active) setLoading(false);
         });
     };
 
-    load();
+    getActiveCompanyId().then(load);
 
     return () => {
       active = false;

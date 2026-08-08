@@ -9,6 +9,7 @@ use App\Models\ShopCart;
 use App\Models\ShopWishlist;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Invoice;
 use App\Models\Company;
 use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
@@ -82,7 +83,12 @@ class ShopController extends Controller
                 $q->where('products.product_name', 'like', "%{$search}%")
                     ->orWhere('products.model', 'like', "%{$search}%")
                     ->orWhere('products.product_code', 'like', "%{$search}%")
-                    ->orWhere('products.processor', 'like', "%{$search}%");
+                    ->orWhere('products.processor', 'like', "%{$search}%")
+                    ->orWhere('b.name', 'like', "%{$search}%");
+                if (is_numeric($search)) {
+                    $q->orWhere('products.price', 'like', "%{$search}%")
+                        ->orWhere('products.offer_price', 'like', "%{$search}%");
+                }
             });
         }
 
@@ -549,7 +555,16 @@ class ShopController extends Controller
             return response()->json(["success" => false, "message" => "Customer name and mobile required"]);
         }
 
-        $company_id = intval($request->input('company_id', 1));
+        // Resolve to a real active company (fallback to first active company
+        // so invoices always land under a company visible in the reports).
+        $company_id = intval($request->input('company_id', 0));
+        $company = $company_id > 0
+            ? Company::where('id', $company_id)->where('status', 'active')->first()
+            : null;
+        if (!$company) {
+            $company = Company::where('status', 'active')->orderBy('id')->first();
+        }
+        $company_id = $company ? $company->id : 0;
 
         // Recalculate totals from items for consistency
         $calcSub = 0;
@@ -633,9 +648,54 @@ class ShopController extends Controller
                 Product::where('id', $product_id)->decrement('stock', $qty);
             }
 
+            // Build invoice products JSON
+            $invoice_products = [];
+            foreach ($items as $item) {
+                $product_id = intval($item['product_id'] ?? 0);
+                $qty        = max(1, intval($item['quantity'] ?? 1));
+                $prc        = floatval($item['price'] ?? 0);
+                $gstP       = floatval($item['gst_percentage'] ?? 0);
+                $product    = Product::find($product_id);
+                $invoice_products[] = [
+                    'product_id' => $product_id,
+                    'product_name' => $product ? $product->product_name : "Product #{$product_id}",
+                    'image' => $product ? $product->image : null,
+                    'size' => ($item['size'] ?? '') ?: null,
+                    'price' => $prc,
+                    'qty' => $qty,
+                    'quantity' => $qty,
+                    'gst_percentage' => $gstP,
+                    'total' => $prc * $qty,
+                ];
+            }
+
+            // Create the invoice record (linked to the order via order_id) so it
+            // shows up in the billing software reports.
+            $invoice = Invoice::create([
+                'order_id' => $order->id,
+                'invoice_no' => $invoice_no,
+                'customer_id' => null,
+                'customer_name' => $customer_name,
+                'customer_phone' => $mobile,
+                'cashier_id' => null,
+                'products' => $invoice_products,
+                'sub_total' => $sub_total,
+                'gst_total' => $gst_total,
+                'total_amount' => $grand_total,
+                'paid_amount' => 0,
+                'balance_amount' => $grand_total,
+                'payment_method' => $payment_method,
+                'payment_type' => 'cash',
+                'gst_type' => 'with_gst',
+                'payment_status' => 'not_paid',
+                'company_id' => $company_id,
+                'shipping_address' => $shipping_address,
+                'created_at' => now(),
+            ]);
+
             $payment = Payment::create([
                 'company_id' => $company_id,
-                'invoice_id' => $order->id,
+                'invoice_id' => $invoice->id,
                 'invoice_no' => $invoice_no,
                 'customer_id' => 0,
                 'total_amount' => $grand_total,
@@ -658,11 +718,12 @@ class ShopController extends Controller
                 "message" => "Order placed successfully",
                 "order_id" => $order->id,
                 "invoice_no" => $invoice_no,
-                "invoice_id" => $order->id,
+                "invoice_id" => $invoice->id,
                 "payment_id" => $payment->id,
                 "data" => [
                     "order_id" => $order->id,
                     "invoice_no" => $invoice_no,
+                    "invoice_id" => $invoice->id,
                 ],
             ]);
         } catch (\Exception $e) {
@@ -672,6 +733,76 @@ class ShopController extends Controller
                 "message" => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * POST /shop/payment/{id}
+     * Records the payment for an already-created order (created by checkout),
+     * updating the order, its linked invoice and payment row.
+     */
+    public function orderPayment(Request $request, $id)
+    {
+        $user_id = intval($request->input('user_id', 0));
+        $order   = Order::where('id', intval($id))->first();
+
+        if (!$order) {
+            return response()->json(["success" => false, "message" => "Order not found"]);
+        }
+
+        // Only allow the order owner to pay for it
+        if ($user_id > 0 && $order->user_id && $order->user_id != $user_id) {
+            return response()->json(["success" => false, "message" => "Unauthorized"]);
+        }
+
+        $total_amount   = floatval($order->total_amount);
+        $paid_amount    = floatval($request->input('paid_amount', 0));
+        $payment_method = trim($request->input('payment_method', 'cash'));
+
+        if ($paid_amount >= $total_amount) {
+            $payment_status = 'paid';
+            $balance_amount = 0;
+        } elseif ($paid_amount > 0) {
+            $payment_status = 'partial';
+            $balance_amount = $total_amount - $paid_amount;
+        } else {
+            $payment_status = 'not_paid';
+            $balance_amount = $total_amount;
+        }
+
+        $order->update([
+            'paid_amount'    => $paid_amount,
+            'balance_amount' => $balance_amount,
+            'payment_method' => $payment_method,
+            'payment_status' => $payment_status,
+        ]);
+
+        $invoice = Invoice::where('order_id', $order->id)->first();
+        if ($invoice) {
+            $invoice->update([
+                'paid_amount'    => $paid_amount,
+                'balance_amount' => $balance_amount,
+                'payment_method' => $payment_method,
+                'payment_status' => $payment_status,
+            ]);
+        }
+
+        Payment::where('invoice_no', $order->invoice_no)->update([
+            'paid_amount'    => $paid_amount,
+            'balance_amount' => $balance_amount,
+            'payment_method' => $payment_method,
+            'payment_status' => $payment_status,
+        ]);
+
+        return response()->json([
+            "success"        => true,
+            "message"        => "Payment recorded successfully",
+            "order_id"       => $order->id,
+            "invoice_no"     => $order->invoice_no,
+            "invoice_id"     => $invoice ? $invoice->id : $order->id,
+            "paid_amount"    => $paid_amount,
+            "balance_amount" => $balance_amount,
+            "payment_status" => $payment_status,
+        ]);
     }
 
     /**
@@ -743,6 +874,10 @@ class ShopController extends Controller
             return response()->json(["success" => false, "message" => "Unauthorized"]);
         }
 
+        // Prefer the invoice table record (linked via order_id) so the storefront
+        // invoice matches the one shown in the billing reports.
+        $invoiceRecord = Invoice::where('order_id', $order->id)->first();
+
         $company = Company::find($order->company_id) ?: Company::find(1);
 
         $items = OrderItem::where('order_id', $order->id)->get()->map(function ($item) {
@@ -758,26 +893,72 @@ class ShopController extends Controller
             ];
         });
 
+        $invoice_no      = $order->invoice_no;
+        $created_at      = $order->created_at;
+        $payment_status  = $order->payment_status === 'paid' ? 'paid' : ($order->payment_status === 'partial' ? 'partial' : 'pending');
+        $payment_method  = $order->payment_method;
+        $shipping_address = $order->shipping_address;
+        $sub_total       = $order->sub_total;
+        $gst_total       = $order->gst_total;
+        $total_amount    = $order->total_amount;
+        $paid_amount     = $order->paid_amount;
+        $balance_amount  = $order->balance_amount;
+        $invoice_id      = $order->id;
+
+        if ($invoiceRecord) {
+            $invoice_no       = $invoiceRecord->invoice_no;
+            $created_at       = $invoiceRecord->created_at;
+            $payment_status   = $invoiceRecord->payment_status;
+            $payment_method   = $invoiceRecord->payment_method;
+            $shipping_address = $invoiceRecord->shipping_address ?: $order->shipping_address;
+            $sub_total        = $invoiceRecord->sub_total;
+            $gst_total        = $invoiceRecord->gst_total;
+            $total_amount     = $invoiceRecord->total_amount;
+            $paid_amount      = $invoiceRecord->paid_amount;
+            $balance_amount   = $invoiceRecord->balance_amount;
+            $invoice_id       = $invoiceRecord->id;
+
+            $decodedProducts = is_string($invoiceRecord->products)
+                ? json_decode($invoiceRecord->products, true)
+                : $invoiceRecord->products;
+
+            if (is_array($decodedProducts)) {
+                $items = collect($decodedProducts)->map(function ($item) {
+                    return [
+                        'product_id' => $item['product_id'] ?? null,
+                        'product_name' => $item['product_name'] ?? "Product",
+                        'size' => $item['size'] ?? null,
+                        'qty' => $item['quantity'] ?? $item['qty'] ?? 1,
+                        'quantity' => $item['quantity'] ?? $item['qty'] ?? 1,
+                        'price' => $item['price'] ?? 0,
+                        'total' => $item['total'] ?? 0,
+                        'gst_percentage' => $item['gst_percentage'] ?? 0,
+                    ];
+                });
+            }
+        }
+
         $data = [
-            'id' => $order->id,
-            'invoice_no' => $order->invoice_no,
+            'id' => $invoice_id,
+            'order_id' => $order->id,
+            'invoice_no' => $invoice_no,
             'order_no' => $order->order_no,
-            'created_at' => $order->created_at,
-            'payment_status' => $order->payment_status === 'paid' ? 'paid' : ($order->payment_status === 'partial' ? 'partial' : 'pending'),
-            'payment_method' => $order->payment_method,
+            'created_at' => $created_at,
+            'payment_status' => $payment_status,
+            'payment_method' => $payment_method,
             'status' => $order->status,
             'customer_name' => $order->customer_name,
             'customer_phone' => $order->mobile,
             'mobile' => $order->mobile,
             'email' => $order->email,
-            'shipping_address' => $order->shipping_address,
-            'address' => $order->shipping_address,
-            'sub_total' => $order->sub_total,
-            'gst_total' => $order->gst_total,
-            'total_amount' => $order->total_amount,
-            'total' => $order->total_amount,
-            'paid_amount' => $order->paid_amount,
-            'balance_amount' => $order->balance_amount,
+            'shipping_address' => $shipping_address,
+            'address' => $shipping_address,
+            'sub_total' => $sub_total,
+            'gst_total' => $gst_total,
+            'total_amount' => $total_amount,
+            'total' => $total_amount,
+            'paid_amount' => $paid_amount,
+            'balance_amount' => $balance_amount,
             'company_name' => $company ? $company->company_name : null,
             'company_address' => $company ? $company->company_address : null,
             'company_phone' => $company ? $company->phone : null,
