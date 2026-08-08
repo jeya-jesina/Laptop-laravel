@@ -34,6 +34,7 @@ class ShopController extends Controller
         $price_max    = floatval($request->query('price_max', 0));
         $availability = trim($request->query('availability', ''));
         $rating       = intval($request->query('rating', 0));
+        $offer        = intval($request->query('offer', 0));
 
         $csv = function ($key) use ($request) {
             $raw = $request->query($key, '');
@@ -160,6 +161,10 @@ class ShopController extends Controller
             $query->where('products.stock', '>', 0);
         } elseif ($availability === 'out_of_stock') {
             $query->where('products.stock', '<=', 0);
+        }
+
+        if ($offer == 1) {
+            $query->where('products.is_offer', 1);
         }
 
         switch ($sort) {

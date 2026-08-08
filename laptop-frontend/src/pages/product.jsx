@@ -67,6 +67,11 @@ export default function Product() {
         return id ? parseInt(id, 10) : null;
     }, [location.search]);
 
+    const offerId = useMemo(() => {
+        const params = new URLSearchParams(location.search);
+        return params.get("offer") === "1" ? 1 : 0;
+    }, [location.search]);
+
     // Resolve the selected category/subcategory name from the shop menu
     const [categoryName, setCategoryName] = useState("");
     const [subcategoryName, setSubcategoryName] = useState("");
@@ -179,6 +184,7 @@ export default function Product() {
                     operating_system: (filters.operating_systems || []).join(','),
                     availability: filters.availability || '',
                     rating: filters.rating || 0,
+                    offer: offerId ? 1 : 0,
                 }
             });
 
@@ -211,7 +217,7 @@ export default function Product() {
 
     useEffect(() => {
         fetchProducts();
-    }, [filters.sort_by, filters.limit, filters.offset, categoryId, subcategoryId, brandId, budgetId, professionId]);
+    }, [filters.sort_by, filters.limit, filters.offset, categoryId, subcategoryId, brandId, budgetId, professionId, offerId]);
 
     const applyFilters = () => {
         setFilters(prev => ({ ...prev, offset: 0 }));
@@ -356,7 +362,7 @@ export default function Product() {
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <h1 className="text-2xl font-semibold text-gray-900">
-                            {brandName || budgetName || professionName || categoryName || "Products"}
+                            {offerId ? "Home Offers" : (brandName || budgetName || professionName || categoryName || "Products")}
                         </h1>
                         <p className="text-sm text-gray-500 mt-1">
                             {subcategoryName ? `${subcategoryName} · ` : ""}{totalProducts} products found
