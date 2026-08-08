@@ -81,7 +81,12 @@ class ShopController extends Controller
                 $q->where('products.product_name', 'like', "%{$search}%")
                     ->orWhere('products.model', 'like', "%{$search}%")
                     ->orWhere('products.product_code', 'like', "%{$search}%")
-                    ->orWhere('products.processor', 'like', "%{$search}%");
+                    ->orWhere('products.processor', 'like', "%{$search}%")
+                    ->orWhere('b.name', 'like', "%{$search}%");
+                if (is_numeric($search)) {
+                    $q->orWhere('products.price', 'like', "%{$search}%")
+                        ->orWhere('products.offer_price', 'like', "%{$search}%");
+                }
             });
         }
 

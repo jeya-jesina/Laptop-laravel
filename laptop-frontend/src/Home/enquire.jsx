@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Star } from "lucide-react";
-import api from "../services/api";
+import api, { getActiveCompanyId } from "../services/api";
 
 function StarRow({ rating, size }) {
   const rounded = Math.round(Number(rating) || 5);
@@ -20,10 +20,8 @@ const Enquire = () => {
 
   useEffect(() => {
     let active = true;
-    const companyId = parseInt(localStorage.getItem("selected_company_id") || "1", 10);
 
-    const load = (companyOverride) => {
-      const cid = companyOverride || companyId;
+    const load = (cid) => {
       api
         .get("/banner/get_active", {
           params: { company_id: cid, banner_group: "testimonial" },
@@ -32,22 +30,17 @@ const Enquire = () => {
           if (!active) return;
           const payload = res.data?.data || res.data;
           const list = Array.isArray(payload) ? payload : payload?.data || [];
-          if (list.length === 0 && cid !== 1) {
-            load(1);
-          } else {
-            setReviews(list);
-          }
+          setReviews(list);
         })
         .catch((err) => {
           console.error("Failed to load reviews:", err);
-          if (active && cid !== 1) load(1);
         })
         .finally(() => {
           if (active) setLoading(false);
         });
     };
 
-    load();
+    getActiveCompanyId().then(load);
 
     return () => {
       active = false;

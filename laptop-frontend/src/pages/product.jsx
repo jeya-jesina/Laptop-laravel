@@ -6,7 +6,7 @@ import ProductCard from "../components/ProductCard";
 import FilterSidebar from "../components/filters/FilterSidebar";
 import { showToast } from "../utils/toast";
 import { Filter } from "lucide-react";
-import api, { resolveMediaUrl } from "../services/api";
+import api, { resolveMediaUrl, getActiveCompanyId } from "../services/api";
 
 export default function Product() {
     const [products, setProducts] = useState([]);
@@ -91,8 +91,8 @@ export default function Product() {
                 return;
             }
             try {
-                const savedCompany = parseInt(localStorage.getItem("selected_company_id") || "1", 10);
-                const res = await api.get('/shop/menu', { params: { company_id: savedCompany } });
+                const companyId = await getActiveCompanyId();
+                const res = await api.get('/shop/menu', { params: { company_id: companyId } });
                 if (res.data?.success || res.data?.status) {
                     const data = res.data?.data || res.data;
                     if (active) {
@@ -128,10 +128,9 @@ export default function Product() {
 
     // Fetch filter options
     useEffect(() => {
-        const fetchFilterOptions = async (companyOverride) => {
+        const fetchFilterOptions = async () => {
             try {
-                const savedCompany = parseInt(localStorage.getItem("selected_company_id") || "1", 10);
-                const companyId = companyOverride || savedCompany;
+                const companyId = await getActiveCompanyId();
                 const params = { company_id: companyId };
                 if (categoryId) {
                     params.category_id = categoryId;
@@ -144,9 +143,6 @@ export default function Product() {
                         ...prev,
                         availableOptions: payload
                     }));
-                    if (companyId !== 1 && (!payload?.categories || payload.categories.length === 0)) {
-                        await fetchFilterOptions(1);
-                    }
                 }
             } catch (error) {
                 console.error("Failed to load filter options:", error);
@@ -156,11 +152,10 @@ export default function Product() {
     }, [categoryId]);
 
     // Fetch products with filters
-    const fetchProducts = async (companyOverride) => {
+    const fetchProducts = async () => {
         try {
             setLoading(true);
-            const savedCompany = parseInt(localStorage.getItem("selected_company_id") || "1", 10);
-            const companyId = companyOverride || savedCompany;
+            const companyId = await getActiveCompanyId();
 
             const response = await api.get('/shop/products', {
                 params: {
@@ -201,9 +196,6 @@ export default function Product() {
                 }));
                 setProducts(productsWithResolvedImages);
                 setTotalProducts(payload?.total || list.length || 0);
-                if (list.length === 0 && companyId !== 1) {
-                    await fetchProducts(1);
-                }
             } else {
                 console.error("API returned error:", response.data);
             }

@@ -45,4 +45,42 @@ export const resolveMediaUrl = (src) => {
 // ✅ Keep old name as alias
 export const resolveImageUrl = resolveMediaUrl;
 
+// ✅ Resolve the active store company id.
+// Uses the saved company from localStorage when available, otherwise fetches
+// the first active company from the backend and caches it. This makes every
+// storefront query hit the company that actually has products/banners.
+let _activeCompanyPromise = null;
+
+export const getActiveCompanyId = () => {
+  if (_activeCompanyPromise) return _activeCompanyPromise;
+
+  _activeCompanyPromise = api
+    .get("/company/get_companies")
+    .then((res) => {
+      const payload = res.data?.data || res.data;
+      const list = Array.isArray(payload) ? payload : payload?.data || [];
+      const saved = parseInt(localStorage.getItem("selected_company_id"), 10);
+      const savedCompany =
+        saved > 0 ? list.find((c) => Number(c.id) === saved) : null;
+      const company =
+        savedCompany ||
+        list.find((c) => String(c.status || "active") === "active") ||
+        list[0];
+      const id = company?.id ? Number(company.id) : 1;
+      if (company?.id) {
+        localStorage.setItem("selected_company_id", String(company.id));
+      }
+      return id;
+    })
+    .catch((err) => {
+      console.error("Failed to resolve active company:", err);
+      return 1;
+    })
+    .finally(() => {
+      _activeCompanyPromise = null;
+    });
+
+  return _activeCompanyPromise;
+};
+
 export default api;

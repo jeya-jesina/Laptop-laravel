@@ -4,7 +4,7 @@ import ProductCard from "../components/ProductCard";
 import { useStore } from "../contexts/StoreContext";
 import { useAuth } from "../contexts/AuthContext";
 import { showToast } from "../utils/toast";
-import api from "../services/api"; // 👈 Import the axios instance
+import api, { getActiveCompanyId } from "../services/api"; // 👈 Import the axios instance
 
 // Removed: const API_BASE = "http://localhost/bridal-boutique/Bridal-Boutique-backend/api";
 
@@ -42,7 +42,10 @@ export default function Search() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await api.get("/shop/products/filters");
+        const companyId = await getActiveCompanyId();
+        const response = await api.get("/shop/products/filters", {
+          params: { company_id: companyId },
+        });
         const payload = response.data?.data || response.data;
         if (response.data?.success || response.data?.status) {
           setCategories(payload?.categories || []);
@@ -65,12 +68,17 @@ export default function Search() {
     const fetchResults = async () => {
       setLoading(true);
       try {
+        const companyId = await getActiveCompanyId();
         const response = await api.get("/shop/products", {
           params: {
+            company_id: companyId,
             search: q || "",
             category_id: selectedCategory || 0,
             sort: selectedSort || "newest",
             per_page: 24,
+            price_min: priceRange.min || 0,
+            price_max: priceRange.max || 0,
+            availability: selectedAvailability || "",
           },
         });
         const payload = response.data?.data || response.data;

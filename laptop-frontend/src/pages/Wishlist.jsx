@@ -23,7 +23,7 @@ export default function Wishlist() {
   const removeItem = async (id) => {
     try {
       const response = await api.delete(`/shop/wishlist/${id}`, { params: { user_id: user?.id || 0 } });
-      if (response.data?.status) {
+      if (response.data?.success) {
         await refreshCounts();
         showToast("Removed from wishlist", "success");
       }
@@ -42,7 +42,7 @@ export default function Wishlist() {
         price: product.price,
         size: product.size || "",
       });
-      if (response.data?.status) {
+      if (response.data?.success) {
         await removeItem(product.id);
         await refreshCounts();
         showToast("Moved to cart successfully", "success");

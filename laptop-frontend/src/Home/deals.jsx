@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api, { resolveMediaUrl } from "../services/api";
+import api, { resolveMediaUrl, getActiveCompanyId } from "../services/api";
 
 const formatINR = (n) => "₹" + Number(n || 0).toLocaleString("en-IN") + ".00";
 
@@ -28,18 +28,19 @@ const Deals = () => {
   const [deal, setDeal] = useState(null);
 
   useEffect(() => {
-    const companyId = parseInt(localStorage.getItem("selected_company_id") || "1", 10);
+    getActiveCompanyId().then((companyId) => {
 
-    api
-      .get("/banner/get_active", {
-        params: { company_id: companyId, banner_group: "deal_of_day" },
-      })
-      .then((res) => {
-        if (res.data.status && Array.isArray(res.data.data) && res.data.data.length > 0) {
-          setDeal(res.data.data[0]);
-        }
-      })
-      .catch((err) => console.error("Failed to load deal of the day:", err));
+      api
+        .get("/banner/get_active", {
+          params: { company_id: companyId, banner_group: "deal_of_day" },
+        })
+        .then((res) => {
+          if (res.data.status && Array.isArray(res.data.data) && res.data.data.length > 0) {
+            setDeal(res.data.data[0]);
+          }
+        })
+        .catch((err) => console.error("Failed to load deal of the day:", err));
+    });
   }, []);
 
   if (!deal) return null;
