@@ -150,33 +150,19 @@ export default function Payment() {
       }
     }
 
-    // Prepare products for invoice
-    const products = items.map(item => ({
-      product_id: item.product_id,
-      qty: item.quantity,
-      price: item.price,
-      size: item.size || "",
-      gst_percentage: Number(item.gst_percentage || item.gst || 0),
-    }));
-
+    // Record payment for the order already created at checkout
     const payload = {
       user_id: user?.id || 0,
-      customer_name: orderData.customer_name || user?.name || "Customer",
-      mobile: form.mobile.replace(/[^0-9]/g, ''),
-      email: orderData.email || user?.email || '',
-      shipping_address: form.shipping_address,
-      billing_address: form.shipping_address,
-      payment_method: form.payment_type === 'cash' ? 'cash' : 'online',
-      items: products,
-      subtotal,
-      gst: gstTotal,
-      grand_total: totalWithGst,
+      order_id: orderData.order_id || 0,
+      paid_amount: paidAmount,
+      payment_method: form.payment_method,
     };
 
     console.log("Payment payload:", payload);
 
     try {
-      const response = await api.post('/shop/checkout', payload);
+      const orderId = orderData.order_id || 0;
+      const response = await api.post(`/shop/payment/${orderId}`, payload);
       console.log("Payment response:", response.data);
 
       if (response.data?.success || response.data?.status) {
