@@ -27,6 +27,36 @@ code {
 .font-porsha {
   font-family: "Porsha Richela", serif;
 }
+
+@keyframes clientScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-client-scroll {
+  animation: clientScroll 25s linear infinite;
+}
+
+@keyframes dropdownIn {
+  from { opacity: 0; transform: translate(-50%, -6px) scale(0.98); }
+  to   { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+.dropdown-panel {
+  animation: dropdownIn 0.18s ease both;
+}
+
+.dropdown-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.dropdown-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dropdown-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.dropdown-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
 /* Chrome, Edge, Safari */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {

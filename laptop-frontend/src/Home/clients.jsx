@@ -1,20 +1,49 @@
-import React from "react";
-
-import newgen from "../../assets/clients/logo1.svg";
-import hybridplus from "../../assets/clients/logo2.svg";
-import technet from "../../assets/clients/logo3.svg";
-import sigma from "../../assets/clients/logo4.svg";
-import tibco from "../../assets/clients/logo5.svg";
-
-const logos = [
-  newgen,
-  hybridplus,
-  technet,
-  sigma,
-  tibco,
-];
+import React, { useEffect, useState } from "react";
+import api, { resolveMediaUrl } from "../services/api";
 
 const Clients = () => {
+  const [logos, setLogos] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    const companyId = parseInt(localStorage.getItem("selected_company_id") || "1", 10);
+
+    const load = (companyOverride) => {
+      const cid = companyOverride || companyId;
+      api
+        .get("/banner/get_active", {
+          params: { company_id: cid, banner_group: "client_logos" },
+        })
+        .then((res) => {
+          if (!active) return;
+          const payload = res.data?.data || res.data;
+          const list = Array.isArray(payload) ? payload : payload?.data || [];
+          if (list.length === 0 && cid !== 1) {
+            load(1);
+          } else {
+            setLogos(list);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to load client logos:", err);
+          if (active && cid !== 1) load(1);
+        })
+        .finally(() => {
+          if (active) setLoading(false);
+        });
+    };
+
+    load();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (loading) return null;
+  if (logos.length === 0) return null;
+
   return (
     <section className="w-full bg-white py-14 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
@@ -31,12 +60,12 @@ const Clients = () => {
 
             {[...logos, ...logos].map((logo, index) => (
               <div
-                key={index}
+                key={`${logo.id}-${index}`}
                 className="flex-shrink-0 w-[220px] flex items-center justify-center"
               >
                 <img
-                  src={logo}
-                  alt="Client Logo"
+                  src={resolveMediaUrl(logo.image_url)}
+                  alt={logo.title || "Client Logo"}
                   className="h-16 object-contain transition duration-300 hover:scale-105"
                 />
               </div>

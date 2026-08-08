@@ -1,28 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Star } from "lucide-react";
-
-const reviews = [
-  {
-    name: "Sumit Saxena",
-    text: "Highly recommended for people searching for quality laptops in affordable prices and with warranty",
-    rating: 5,
-  },
-  {
-    name: "Sumit Saxena",
-    text: "Highly recommended for people searching for quality laptops in affordable prices and with warranty",
-    rating: 5,
-  },
-  {
-    name: "Sumit Saxena",
-    text: "Highly recommended for people searching for quality laptops in affordable prices and with warranty",
-    rating: 5,
-  },
-  {
-    name: "Sumit Saxena",
-    text: "Highly recommended for people searching for quality laptops in affordable prices and with warranty",
-    rating: 5,
-  },
-];
+import api from "../services/api";
 
 function StarRow({ rating, size }) {
   const rounded = Math.round(Number(rating) || 5);
@@ -37,6 +15,53 @@ function StarRow({ rating, size }) {
 }
 
 const Enquire = () => {
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    const companyId = parseInt(localStorage.getItem("selected_company_id") || "1", 10);
+
+    const load = (companyOverride) => {
+      const cid = companyOverride || companyId;
+      api
+        .get("/banner/get_active", {
+          params: { company_id: cid, banner_group: "testimonial" },
+        })
+        .then((res) => {
+          if (!active) return;
+          const payload = res.data?.data || res.data;
+          const list = Array.isArray(payload) ? payload : payload?.data || [];
+          if (list.length === 0 && cid !== 1) {
+            load(1);
+          } else {
+            setReviews(list);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to load reviews:", err);
+          if (active && cid !== 1) load(1);
+        })
+        .finally(() => {
+          if (active) setLoading(false);
+        });
+    };
+
+    load();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (loading) return null;
+  if (reviews.length === 0) return null;
+
+  const ratings = reviews.map((r) => Number(r.rating) || 0);
+  const avgRating = ratings.length
+    ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1)
+    : "0.0";
+
   return (
     <section className="w-full bg-white py-16">
       <div className="w-[92%] max-w-[1450px] mx-auto">
@@ -57,7 +82,7 @@ const Enquire = () => {
 
               <div className="text-center">
                 <h3 className="text-5xl font-bold text-[#222] leading-none">
-                  4.6
+                  {avgRating}
                 </h3>
 
                 <div className="flex justify-center mt-2">
@@ -83,7 +108,7 @@ const Enquire = () => {
                 </div>
 
                 <p className="text-sm text-gray-700">
-                  Based on <strong>560 reviews</strong>
+                  Based on <strong>{reviews.length} reviews</strong>
                 </p>
               </div>
             </div>
@@ -99,7 +124,7 @@ const Enquire = () => {
 
             {reviews.map((item, index) => (
               <div
-                key={index}
+                key={item.id || index}
                 className="bg-white p-5 shadow-sm border border-gray-100 h-[270px] flex flex-col justify-between"
               >
 
@@ -108,12 +133,12 @@ const Enquire = () => {
                   <div className="flex items-center gap-3">
 
                     <div className="w-11 h-11 rounded-full bg-red-500 text-white flex items-center justify-center font-bold">
-                      {item.name.charAt(0).toUpperCase()}
+                      {(item.title || "?").charAt(0).toUpperCase()}
                     </div>
 
                     <div>
                       <h3 className="font-semibold text-[15px]">
-                        {item.name}
+                        {item.title || "Customer"}
                       </h3>
 
                       <StarRow rating={item.rating} size={13} />
@@ -122,14 +147,14 @@ const Enquire = () => {
                   </div>
 
                   <p className="text-[13px] text-gray-700 mt-5 leading-6">
-                    {item.text}
+                    {item.description}
                   </p>
 
                 </div>
 
                 <div className="flex justify-between items-center mt-6">
                   <a
-                    href="#"
+                    href={item.link_url || "#"}
                     className="text-gray-500 text-xs underline hover:text-blue-600"
                   >
                     Read more...

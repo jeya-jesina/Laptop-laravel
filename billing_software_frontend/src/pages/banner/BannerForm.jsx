@@ -53,6 +53,8 @@ export default function BannerForm() {
   const [price, setPrice] = useState("");
   const [mrp, setMrp] = useState("");
   const [timerEndAt, setTimerEndAt] = useState("");
+  const [bgColor, setBgColor] = useState("#B2EDD5");
+  const [rating, setRating] = useState("");
   const [loading, setLoading] = useState(false);
   const { toasts, show, remove } = useToast();
 
@@ -103,7 +105,8 @@ export default function BannerForm() {
       show("error", "Missing company", "Please select a company first.");
       return;
     }
-    if (!imageUrl) {
+    const textOnlyGroups = ["testimonial", "corporate_offer"];
+    if (!textOnlyGroups.includes(bannerGroup) && !imageUrl) {
       show("warn", "Missing image", "Please upload a banner image.");
       return;
     }
@@ -122,6 +125,8 @@ export default function BannerForm() {
         badge: badge.trim(),
         price: price,
         mrp: mrp,
+        bg_color: bannerGroup === "laptop_deals" ? bgColor : "",
+        rating: bannerGroup === "testimonial" ? rating : "",
         timer_end_at: timerEndAt || null,
       });
       if (res.data.status) {
@@ -494,12 +499,15 @@ export default function BannerForm() {
               </select>
             </div>
 
+            {bannerGroup !== "testimonial" && (
             <div className="sbf-field">
               <MediaUploader
                 type="image"
                 label={
                   bannerGroup === "brand_logo" ? "Brand Logo"
+                  : bannerGroup === "client_logos" ? "Client Logo"
                   : bannerGroup === "deal_of_day" ? "Product Image"
+                  : bannerGroup === "laptop_deals" ? "Offer Card Image"
                   : "Banner Image"
                 }
                 value={imageUrl ? [imageUrl] : []}
@@ -507,12 +515,16 @@ export default function BannerForm() {
                 maxCount={1}
               />
             </div>
+            )}
 
             <div className="sbf-field">
               <div className="sbf-label-row">
                 <span className="sbf-label">
                   {bannerGroup === "brand_logo" ? "Brand Name"
+                  : bannerGroup === "client_logos" ? "Client Name"
                   : bannerGroup === "deal_of_day" ? "Product Title"
+                  : bannerGroup === "laptop_deals" ? "Card Title"
+                  : bannerGroup === "testimonial" ? "Customer Name"
                   : "Banner Title"}
                 </span>
                 <span className="sbf-char">{title.length}/255</span>
@@ -522,7 +534,10 @@ export default function BannerForm() {
                 className="sbf-input"
                 placeholder={
                   bannerGroup === "brand_logo" ? "e.g. Apple"
+                  : bannerGroup === "client_logos" ? "e.g. Newgen"
                   : bannerGroup === "deal_of_day" ? "e.g. Apple MacBook Pro A2485 | M1 Pro"
+                  : bannerGroup === "laptop_deals" ? "e.g. Macbook With M3 Chip"
+                  : bannerGroup === "testimonial" ? "e.g. Sumit Saxena"
                   : "e.g. Monsoon Mega Sale"
                 }
                 value={title}
@@ -531,18 +546,75 @@ export default function BannerForm() {
               />
             </div>
 
-            {bannerGroup !== "brand_logo" && (
+            {bannerGroup !== "brand_logo" && bannerGroup !== "laptop_deals" && bannerGroup !== "client_logos" && (
             <div className="sbf-field">
               <div className="sbf-label-row">
                 <span className="sbf-label">Description</span>
               </div>
               <textarea
                 className="sbf-textarea"
-                placeholder={bannerGroup === "deal_of_day" ? "e.g. IN STOCK — ONLY 5 LEFT" : "Short description shown on the banner"}
+                placeholder={
+                  bannerGroup === "deal_of_day" ? "e.g. IN STOCK — ONLY 5 LEFT"
+                  : bannerGroup === "testimonial" ? "e.g. Highly recommended for people searching for quality laptops in affordable prices and with warranty"
+                  : "Short description shown on the banner"
+                }
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>
+            )}
+
+            {bannerGroup === "testimonial" && (
+              <>
+                <div className="sbf-row">
+                  <div className="sbf-field">
+                    <div className="sbf-label-row">
+                      <span className="sbf-label">Rating (1-5)</span>
+                    </div>
+                    <input
+                      type="number"
+                      className="sbf-input"
+                      placeholder="5"
+                      min="1"
+                      max="5"
+                      value={rating}
+                      onChange={(e) => setRating(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {bannerGroup === "laptop_deals" && (
+              <>
+                <div className="sbf-row">
+                  <div className="sbf-field">
+                    <div className="sbf-label-row">
+                      <span className="sbf-label">Offer Text</span>
+                    </div>
+                    <input
+                      type="text"
+                      className="sbf-input"
+                      placeholder="e.g. Up to 40% OFF"
+                      value={badge}
+                      onChange={(e) => setBadge(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="sbf-field">
+                    <div className="sbf-label-row">
+                      <span className="sbf-label">Card Background Color</span>
+                    </div>
+                    <input
+                      type="color"
+                      className="sbf-input"
+                      style={{ height: "50px", padding: "4px", cursor: "pointer" }}
+                      value={bgColor}
+                      onChange={(e) => setBgColor(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </>
             )}
 
             {bannerGroup === "deal_of_day" && (
@@ -622,7 +694,11 @@ export default function BannerForm() {
             <div className="sbf-row">
               <div className="sbf-field">
                 <div className="sbf-label-row">
-                  <span className="sbf-label">Link URL (optional)</span>
+                  <span className="sbf-label">
+                    {bannerGroup === "laptop_deals" ? "Shop Now Link (optional)"
+                    : bannerGroup === "testimonial" ? "Read More Link (optional)"
+                    : "Link URL (optional)"}
+                  </span>
                 </div>
                 <input
                   type="url"

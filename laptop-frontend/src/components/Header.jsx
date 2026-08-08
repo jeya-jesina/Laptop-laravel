@@ -4,25 +4,137 @@ import { useStore } from "../contexts/StoreContext";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../services/api";
 
+const FilterDropdown = ({ label, items, onSelect, renderItem, emptyText }) => {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState("");
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (!open) setQ("");
+  }, [open]);
+
+  const filtered = q.trim()
+    ? items.filter((it) =>
+        renderItem(it).toLowerCase().includes(q.trim().toLowerCase())
+      )
+    : items;
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className={`flex items-center gap-1.5 text-white text-[16px] font-medium rounded-full px-3 py-1.5 transition-colors duration-200 ${
+          open ? "bg-white/15" : "hover:bg-white/10"
+        }`}
+      >
+        <span>{label}</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth="2"
+          className={`transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="dropdown-panel absolute left-1/2 -translate-x-1/2 top-12 w-[300px] bg-white rounded-2xl shadow-[0_24px_60px_rgba(2,32,71,0.18)] border border-gray-100 z-50 overflow-hidden">
+          {/* Header + Search */}
+          <div className="px-4 pt-4 pb-3 border-b border-gray-100">
+            <p className="text-[11px] font-bold tracking-[0.12em] uppercase text-gray-400">
+              {label}
+            </p>
+            <div className="relative mt-2.5">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z"
+                />
+              </svg>
+              <input
+                type="text"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder={`Search ${label}...`}
+                className="w-full h-[38px] bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-3 text-sm text-gray-700 placeholder:text-gray-400 outline-none focus:border-[#3271D7] focus:bg-white transition-colors"
+              />
+            </div>
+          </div>
+
+          {/* List */}
+          {filtered.length === 0 ? (
+            <p className="px-4 py-8 text-center text-sm text-gray-400">
+              {items.length === 0 ? emptyText : "No matches found"}
+            </p>
+          ) : (
+            <div className="max-h-[300px] overflow-y-auto dropdown-scroll py-2 px-2">
+              {filtered.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    onSelect(item);
+                    setOpen(false);
+                  }}
+                  className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-left text-sm font-medium text-gray-700 transition-colors duration-150 hover:bg-[#eef4ff] hover:text-[#3271D7] group"
+                >
+                  <span className="truncate">{renderItem(item)}</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className="text-[#3271D7] opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 flex-shrink-0"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Header = () => {
   const navigate = useNavigate();
   const { cartCount, wishlistCount } = useStore();
   const { user, logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [brandsOpen, setBrandsOpen] = useState(false);
-  const [budgetsOpen, setBudgetsOpen] = useState(false);
-  const [professionsOpen, setProfessionsOpen] = useState(false);
   const [menu, setMenu] = useState({
     header_categories: [],
     all_categories: [],
     brands: [],
     budgets: [],
   });
-
-  const brandsRef = useRef(null);
-  const budgetsRef = useRef(null);
-  const professionsRef = useRef(null);
 
   useEffect(() => {
     const loadMenu = (companyId) =>
@@ -50,47 +162,21 @@ const Header = () => {
     loadMenu(companyId);
   }, []);
 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (brandsRef.current && !brandsRef.current.contains(e.target)) {
-        setBrandsOpen(false);
-      }
-      if (budgetsRef.current && !budgetsRef.current.contains(e.target)) {
-        setBudgetsOpen(false);
-      }
-      if (professionsRef.current && !professionsRef.current.contains(e.target)) {
-        setProfessionsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   const handleSearch = (e) => {
     e.preventDefault();
     const q = searchQuery.trim();
     navigate(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
   };
 
-  const goToCategory = (category) => {
-    setBrandsOpen(false);
-    setBudgetsOpen(false);
-    setProfessionsOpen(false);
-    navigate(`/bridal-lehenga?category_id=${category.id}`);
-  };
-
   const goToBrand = (brand) => {
-    setBrandsOpen(false);
     navigate(`/bridal-lehenga?brand_id=${brand.id}`);
   };
 
   const goToBudget = (budget) => {
-    setBudgetsOpen(false);
     navigate(`/bridal-lehenga?budget_id=${budget.id}`);
   };
 
   const goToProfessionCategory = (category) => {
-    setProfessionsOpen(false);
     navigate(`/bridal-lehenga?category_id=${category.id}`);
   };
 
@@ -98,6 +184,14 @@ const Header = () => {
     logout();
     setShowProfileMenu(false);
     navigate("/");
+  };
+
+  const renderBudget = (budget) => {
+    const min = Number(budget.min_price || 0).toLocaleString("en-IN");
+    const max = budget.max_price
+      ? ` - ₹${Number(budget.max_price).toLocaleString("en-IN")}`
+      : "+";
+    return `₹${min}${max}`;
   };
 
   return (
@@ -110,136 +204,30 @@ const Header = () => {
       </Link>
 
       {/* Center */}
-      <div className="flex items-center gap-10 flex-1 justify-center">
-        {/* By Brand Dropdown */}
-        <div className="relative" ref={brandsRef}>
-          <button
-            onMouseEnter={() => setBrandsOpen(true)}
-            onClick={() => setBrandsOpen((v) => !v)}
-            className="flex items-center gap-1 text-white text-[16px] font-medium hover:opacity-90"
-          >
-            <span>By Brand</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
+      <div className="flex items-center gap-6 flex-1 justify-center">
+        <FilterDropdown
+          label="By Brand"
+          items={menu.brands}
+          onSelect={goToBrand}
+          renderItem={(b) => b.name}
+          emptyText="No brands available"
+        />
 
-          {brandsOpen && (
-            <div
-              onMouseLeave={() => setBrandsOpen(false)}
-              className="absolute left-0 top-11 bg-white rounded-xl shadow-2xl border border-gray-100 py-3 min-w-[240px] z-50 max-h-[420px] overflow-y-auto"
-            >
-              {menu.brands.length === 0 && (
-                <p className="px-5 py-2 text-sm text-gray-500">No brands available</p>
-              )}
-              {menu.brands.map((brand) => (
-                <button
-                  key={brand.id}
-                  onClick={() => goToBrand(brand)}
-                  className="w-full px-5 py-2.5 text-left text-sm font-medium text-gray-800 hover:bg-[#f0f6ff] hover:text-[#3271D7]"
-                >
-                  {brand.name}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <FilterDropdown
+          label="By Budget"
+          items={menu.budgets}
+          onSelect={goToBudget}
+          renderItem={renderBudget}
+          emptyText="No budgets available"
+        />
 
-        {/* By Budget Dropdown */}
-        <div className="relative" ref={budgetsRef}>
-          <button
-            onMouseEnter={() => setBudgetsOpen(true)}
-            onClick={() => setBudgetsOpen((v) => !v)}
-            className="flex items-center gap-1 text-white text-[16px] font-medium hover:opacity-90"
-          >
-            <span>By Budget</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-
-          {budgetsOpen && (
-            <div
-              onMouseLeave={() => setBudgetsOpen(false)}
-              className="absolute left-0 top-11 bg-white rounded-xl shadow-2xl border border-gray-100 py-3 min-w-[240px] z-50 max-h-[420px] overflow-y-auto"
-            >
-              {menu.budgets.length === 0 && (
-                <p className="px-5 py-2 text-sm text-gray-500">No budgets available</p>
-              )}
-              {menu.budgets.map((budget) => (
-                <button
-                  key={budget.id}
-                  onClick={() => goToBudget(budget)}
-                  className="w-full px-5 py-2.5 text-left text-sm font-medium text-gray-800 hover:bg-[#f0f6ff] hover:text-[#3271D7]"
-                >
-                  ₹{Number(budget.min_price || 0).toLocaleString("en-IN")}
-                  {budget.max_price
-                    ? ` - ₹${Number(budget.max_price).toLocaleString("en-IN")}`
-                    : "+"}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* By Profession Dropdown */}
-        <div className="relative" ref={professionsRef}>
-          <button
-            onMouseEnter={() => setProfessionsOpen(true)}
-            onClick={() => setProfessionsOpen((v) => !v)}
-            className="flex items-center gap-1 text-white text-[16px] font-medium hover:opacity-90"
-          >
-            <span>By Profession</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-
-          {professionsOpen && (
-            <div
-              onMouseLeave={() => setProfessionsOpen(false)}
-              className="absolute left-0 top-11 bg-white rounded-xl shadow-2xl border border-gray-100 py-3 min-w-[240px] z-50 max-h-[420px] overflow-y-auto"
-            >
-              {menu.all_categories.length === 0 && (
-                <p className="px-5 py-2 text-sm text-gray-500">No categories available</p>
-              )}
-              {menu.all_categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => goToProfessionCategory(category)}
-                  className="w-full px-5 py-2.5 text-left text-sm font-medium text-gray-800 hover:bg-[#f0f6ff] hover:text-[#3271D7]"
-                >
-                  {category.name}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
+        <FilterDropdown
+          label="By Profession"
+          items={menu.all_categories}
+          onSelect={goToProfessionCategory}
+          renderItem={(c) => c.name}
+          emptyText="No categories available"
+        />
 
         {/* Search */}
         <form onSubmit={handleSearch} className="relative ml-8">
