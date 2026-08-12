@@ -35,10 +35,10 @@ const CartItem = ({ item, onUpdate, onRemove }) => {
                    "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0";
 
   return (
-    <div className="flex flex-col md:flex-row items-start md:items-center justify-between rounded-xl bg-white p-4 shadow-sm hover:shadow-md transition">
+    <div className="flex flex-col md:flex-row items-start md:items-center justify-between rounded-xl bg-white p-3 md:p-4 shadow-sm hover:shadow-md transition">
       {/* Left: Image + Details */}
-      <div className="flex items-center gap-4 w-full md:w-auto">
-        <div className="h-20 w-20 md:h-24 md:w-24 rounded-lg overflow-hidden bg-[#f8f7f2] flex items-center justify-center flex-shrink-0">
+      <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto">
+        <div className="h-14 w-14 sm:h-16 sm:w-16 md:h-24 md:w-24 rounded-lg overflow-hidden bg-[#f8f7f2] flex items-center justify-center flex-shrink-0">
           <img
             src={imageSrc}
             alt={item.product_name || "Product"}
@@ -47,7 +47,7 @@ const CartItem = ({ item, onUpdate, onRemove }) => {
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold truncate">{item.product_name}</h3>
+          <h3 className="text-sm md:text-base font-semibold truncate">{item.product_name}</h3>
           <p className="text-sm font-medium text-[#a97c50]">
             {formatCurrency(Number(item.price))}
             {Number(item.gst_percentage) > 0 && (
@@ -57,7 +57,7 @@ const CartItem = ({ item, onUpdate, onRemove }) => {
             )}
           </p>
           {item.size && (
-            <span className="inline-flex items-center rounded-full bg-[#f0f0f0] px-3 py-1 text-xs font-medium text-gray-700 mt-1">
+            <span className="inline-flex items-center rounded-full bg-[#f0f0f0] px-2.5 py-0.5 text-[11px] md:text-xs font-medium text-gray-700 mt-1">
               Size: {item.size}
             </span>
           )}
@@ -65,19 +65,19 @@ const CartItem = ({ item, onUpdate, onRemove }) => {
       </div>
 
       {/* Right: Quantity + Remove */}
-      <div className="flex items-center gap-3 mt-4 md:mt-0 w-full md:w-auto justify-end">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 md:gap-3 mt-2 md:mt-0 w-full md:w-auto justify-end">
+        <div className="flex items-center gap-1.5 md:gap-2">
           <button
             onClick={() => onUpdate(item.id, Number(item.quantity) - 1)}
-            className="h-8 w-8 rounded-full border hover:bg-gray-50 transition flex items-center justify-center disabled:opacity-40"
+            className="h-7 w-7 md:h-8 md:w-8 rounded-full border hover:bg-gray-50 transition flex items-center justify-center disabled:opacity-40"
             disabled={Number(item.quantity) <= 1}
           >
             −
           </button>
-          <span className="w-6 text-center font-medium">{item.quantity}</span>
+          <span className="w-5 md:w-6 text-center font-medium">{item.quantity}</span>
           <button
             onClick={() => onUpdate(item.id, Number(item.quantity) + 1)}
-            className="h-8 w-8 rounded-full border hover:bg-gray-50 transition flex items-center justify-center"
+            className="h-7 w-7 md:h-8 md:w-8 rounded-full border hover:bg-gray-50 transition flex items-center justify-center"
           >
             +
           </button>
@@ -85,7 +85,7 @@ const CartItem = ({ item, onUpdate, onRemove }) => {
 
         <button
           onClick={() => onRemove(item.id)}
-          className="text-red-500 text-sm hover:text-red-700 transition ml-2"
+          className="text-red-500 text-xs md:text-sm hover:text-red-700 transition ml-2"
         >
           Remove
         </button>
@@ -101,10 +101,10 @@ const OrderSummary = ({ subtotal, gst, total, onCheckout, itemCount }) => {
     : 0;
 
   return (
-    <div className="rounded-xl bg-white p-6 shadow-sm h-fit sticky top-28">
-      <h2 className="text-xl font-semibold">Order Summary</h2>
+    <div className="rounded-xl bg-white p-4 md:p-6 shadow-sm h-fit sticky top-24 md:top-28">
+      <h2 className="text-lg md:text-xl font-semibold">Order Summary</h2>
 
-      <div className="mt-5 space-y-3">
+      <div className="mt-3 md:mt-5 space-y-3">
         <div className="flex justify-between">
           <span className="text-gray-600">Subtotal</span>
           <span className="font-medium">{formatCurrency(subtotal)}</span>
@@ -242,11 +242,11 @@ export default function Cart() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="min-h-screen bg-[#f8f7f2] pt-28 pb-12 px-4 md:px-8 lg:px-12">
+    <div className="min-h-screen bg-[#f8f7f2] pt-20 md:pt-28 pb-12 px-4 md:px-8 lg:px-12">
       <div className="max-w-7xl mx-auto grid lg:grid-cols-[2fr_1fr] gap-8">
         {/* ─── Left Column: Cart Items ────────────────────────────────── */}
         <div>
-          <h1 className="text-3xl font-semibold uppercase tracking-wider lg:tracking-[4px]">
+          <h1 className="text-2xl md:text-3xl font-semibold uppercase tracking-wider lg:tracking-[4px]">
             Cart ({cartItems?.length || 0})
           </h1>
 

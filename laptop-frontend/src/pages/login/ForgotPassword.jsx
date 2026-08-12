@@ -61,7 +61,7 @@ export default function ForgotPassword() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-[#a97c50] focus:border-transparent outline-none bg-gray-50"
+              className="mt-1 block w-full rounded-lg border border-blue-300 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-gray-50"
               placeholder="you@example.com"
             />
           </div>
@@ -69,14 +69,14 @@ export default function ForgotPassword() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#a97c50] hover:bg-[#8a6b40] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#a97c50] disabled:opacity-50 disabled:cursor-not-allowed transition"
+            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             {loading ? "Sending..." : "Send Reset Link"}
           </button>
         </form>
 
         <div className="text-center mt-4">
-          <Link to="/login" className="text-sm text-[#a97c50] hover:underline">
+          <Link to="/login" className="text-sm text-blue-600 hover:underline">
             Back to Login
           </Link>
         </div>

@@ -12,6 +12,8 @@ export default function Register() {
   const [address, setAddress] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const redirect = searchParams.get("redirect") || "/";
@@ -24,6 +26,33 @@ export default function Register() {
     }
   }, [user, navigate, redirect]);
 
+  const handlePhoneChange = (e) => {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+    setPhone(digits);
+    setPhoneError(
+      digits.length > 0 && digits.length < 10
+        ? "Phone number must be exactly 10 digits"
+        : ""
+    );
+  };
+
+  const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    setEmailError(
+      e.target.value.length > 0 && !isValidEmail(e.target.value)
+        ? "Please enter a valid email address."
+        : ""
+    );
+  };
+
+  const handleEmailBlur = () => {
+    if (email.length > 0 && !isValidEmail(email)) {
+      setEmailError("Please enter a valid email address.");
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
@@ -33,8 +62,13 @@ export default function Register() {
       return;
     }
 
-    if (!/^[0-9]{10}$/.test(phone.replace(/[^0-9]/g, ""))) {
-      setError("Please enter a valid 10-digit phone number");
+    if (!isValidEmail(email)) {
+      setEmailError("Please enter a valid email address.");
+      return;
+    }
+
+    if (!/^[0-9]{10}$/.test(phone)) {
+      setPhoneError("Phone number must be exactly 10 digits");
       return;
     }
 
@@ -60,8 +94,13 @@ export default function Register() {
       return;
     }
 
-    if (!/^[0-9]{10}$/.test(phone.replace(/[^0-9]/g, ""))) {
-      setError("Please enter a valid 10-digit phone number");
+    if (!isValidEmail(email)) {
+      setEmailError("Please enter a valid email address.");
+      return;
+    }
+
+    if (!/^[0-9]{10}$/.test(phone)) {
+      setPhoneError("Phone number must be exactly 10 digits");
       return;
     }
 
@@ -89,7 +128,7 @@ export default function Register() {
           </button>
 
           <div className="flex flex-col md:flex-row min-h-[420px]">
-            <div className="w-full md:w-2/5 overflow-hidden">
+            <div className="hidden md:block w-full md:w-2/5 overflow-hidden">
               <img
                 src={LoginBanner}
                 alt="Login banner"
@@ -106,10 +145,10 @@ export default function Register() {
 
                 <div className="mt-4 flex items-center gap-2">
                   <div className="flex-1">
-                    <div className={`h-1.5 rounded-full ${step >= 1 ? "bg-[#a97c50]" : "bg-gray-200"}`} />
+                    <div className={`h-1.5 rounded-full ${step >= 1 ? "bg-blue-600" : "bg-gray-200"}`} />
                   </div>
                   <div className="flex-1">
-                    <div className={`h-1.5 rounded-full ${step >= 2 ? "bg-[#a97c50]" : "bg-gray-200"}`} />
+                    <div className={`h-1.5 rounded-full ${step >= 2 ? "bg-blue-600" : "bg-gray-200"}`} />
                   </div>
                 </div>
 
@@ -135,7 +174,7 @@ export default function Register() {
                           onChange={(e) => setName(e.target.value)}
                           required
                           placeholder="Enter your full name"
-                          className="w-full rounded-lg border border-gray-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-[#a97c50] focus:border-transparent transition outline-none bg-gray-50 hover:bg-white"
+                          className="w-full rounded-lg border border-blue-300 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition outline-none bg-gray-50 hover:bg-white"
                         />
                       </div>
 
@@ -145,12 +184,18 @@ export default function Register() {
                         </label>
                         <input
                           value={email}
-                          onChange={(e) => setEmail(e.target.value)}
+                          onChange={handleEmailChange}
+                          onBlur={handleEmailBlur}
                           required
                           type="email"
                           placeholder="Enter your email"
-                          className="w-full rounded-lg border border-gray-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-[#a97c50] focus:border-transparent transition outline-none bg-gray-50 hover:bg-white"
+                          className="w-full rounded-lg border border-blue-300 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition outline-none bg-gray-50 hover:bg-white"
                         />
+                        {emailError && (
+                          <p className="mt-1 text-[11px] text-red-600">
+                            {emailError}
+                          </p>
+                        )}
                       </div>
 
                       <div>
@@ -159,18 +204,25 @@ export default function Register() {
                         </label>
                         <input
                           value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
+                          onChange={handlePhoneChange}
                           required
                           type="tel"
+                          inputMode="numeric"
+                          maxLength="10"
                           placeholder="Enter your 10-digit phone number"
-                          className="w-full rounded-lg border border-gray-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-[#a97c50] focus:border-transparent transition outline-none bg-gray-50 hover:bg-white"
+                          className="w-full rounded-lg border border-blue-300 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition outline-none bg-gray-50 hover:bg-white"
                         />
+                        {phoneError && (
+                          <p className="mt-1 text-[11px] text-red-600">
+                            {phoneError}
+                          </p>
+                        )}
                       </div>
 
                       <button
                         type="button"
                         onClick={handleNext}
-                        className="w-full rounded-lg bg-[#a97c50] px-4 py-2.5 text-white text-sm font-medium hover:bg-[#8a6b40] transition-all transform hover:scale-[1.02] mt-2 shadow-md hover:shadow-lg"
+                        className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-white text-sm font-medium hover:bg-blue-700 transition-all transform hover:scale-[1.02] mt-2 shadow-md hover:shadow-lg"
                       >
                         Next
                       </button>
@@ -189,7 +241,7 @@ export default function Register() {
                           required
                           rows="2"
                           placeholder="Enter your complete address"
-                          className="w-full rounded-lg border border-gray-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-[#a97c50] focus:border-transparent transition resize-none outline-none bg-gray-50 hover:bg-white"
+                          className="w-full rounded-lg border border-blue-300 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition resize-none outline-none bg-gray-50 hover:bg-white"
                         />
                       </div>
 
@@ -203,7 +255,7 @@ export default function Register() {
                           required
                           type="password"
                           placeholder="Create a password (min 6 characters)"
-                          className="w-full rounded-lg border border-gray-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-[#a97c50] focus:border-transparent transition outline-none bg-gray-50 hover:bg-white"
+                          className="w-full rounded-lg border border-blue-300 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition outline-none bg-gray-50 hover:bg-white"
                         />
                         <p className="text-[10px] text-gray-400 mt-1">
                           Password must be at least 6 characters
@@ -222,7 +274,7 @@ export default function Register() {
                         <button
                           type="submit"
                           disabled={loading}
-                          className="w-full rounded-lg bg-[#a97c50] px-4 py-2.5 text-white text-sm font-medium hover:bg-[#8a6b40] transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-md hover:shadow-lg"
+                          className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-white text-sm font-medium hover:bg-blue-700 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-md hover:shadow-lg"
                         >
                           {loading ? "Creating account..." : "Register"}
                         </button>
@@ -247,7 +299,7 @@ export default function Register() {
                 <p className="mt-3 text-sm text-gray-600 text-center">
                   Already have an account?{" "}
                   <Link
-                    className="text-[#a97c50] font-semibold hover:underline"
+                    className="text-blue-600 font-semibold hover:underline"
                     to={`/login?redirect=${encodeURIComponent(redirect)}`}
                   >
                     Login

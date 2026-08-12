@@ -6,9 +6,10 @@ import api from "../services/api";
 
 export default function Login() {
   const { login, loading, user } = useAuth();
-const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const redirect = searchParams.get("redirect") || "/";
@@ -29,6 +30,11 @@ const [email, setEmail] = useState("");
   return;
 }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailError("Please enter a valid email address.");
+      return;
+    }
+
     
 
 const response = await login(email, password);
@@ -37,6 +43,12 @@ const response = await login(email, password);
       navigate(redirect, { replace: true });
     } else {
       setError(response.message || "Login failed");
+    }
+  };
+
+  const handleEmailBlur = () => {
+    if (email.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailError("Please enter a valid email address.");
     }
   };
 
@@ -64,7 +76,7 @@ const response = await login(email, password);
           </button>
 
           <div className="flex flex-col md:flex-row min-h-[420px]">
-            <div className="w-full md:w-2/5 overflow-hidden">
+            <div className="hidden md:block w-full md:w-2/5 overflow-hidden">
               <img
                 src={LoginBanner}
                 alt="Login banner"
@@ -92,12 +104,25 @@ const response = await login(email, password);
 
   <input
     value={email}
-    onChange={(e) => setEmail(e.target.value)}
+    onChange={(e) => {
+      setEmail(e.target.value);
+      if (e.target.value.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)) {
+        setEmailError("Please enter a valid email address.");
+      } else {
+        setEmailError("");
+      }
+    }}
+    onBlur={handleEmailBlur}
     required
     type="email"
     placeholder="Enter your email"
-    className="w-full rounded-lg border border-gray-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-[#a97c50] focus:border-transparent transition outline-none bg-gray-50 hover:bg-white"
+    className="w-full rounded-lg border border-blue-300 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition outline-none bg-gray-50 hover:bg-white"
   />
+  {emailError && (
+    <p className="mt-1 text-[11px] text-red-600">
+      {emailError}
+    </p>
+  )}
 </div>
 
                   <div>
@@ -110,13 +135,13 @@ const response = await login(email, password);
                       required 
                       type="password" 
                       placeholder="Enter your password" 
-                      className="w-full rounded-lg border border-gray-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-[#a97c50] focus:border-transparent transition outline-none bg-gray-50 hover:bg-white" 
+                      className="w-full rounded-lg border border-blue-300 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition outline-none bg-gray-50 hover:bg-white" 
                     />
                   </div>
                   <div className="text-right mt-1">
   <Link
     to={`/forgot-password?redirect=${encodeURIComponent(redirect)}`}
-    className="text-xs text-[#a97c50] hover:underline"
+    className="text-xs text-blue-600 hover:underline"
   >
     Forgot password?
   </Link>
@@ -125,7 +150,7 @@ const response = await login(email, password);
                   <button 
                     type="submit" 
                     disabled={loading} 
-                    className="w-full rounded-lg bg-[#a97c50] px-4 py-2.5 text-white text-sm font-medium hover:bg-[#8a6b40] transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 mt-2 shadow-md hover:shadow-lg"
+                    className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-white text-sm font-medium hover:bg-blue-700 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 mt-2 shadow-md hover:shadow-lg"
                   >
                     {loading ? "Logging in..." : "Login"}
                   </button>
@@ -143,7 +168,7 @@ const response = await login(email, password);
                 <p className="mt-3 text-sm text-gray-600 text-center">
                   New customer?{" "}
                   <Link 
-                    className="text-[#a97c50] font-semibold hover:underline" 
+                    className="text-blue-600 font-semibold hover:underline" 
                     to={`/register?redirect=${encodeURIComponent(redirect)}`}
                   >
                     Create Account
