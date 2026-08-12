@@ -7,7 +7,7 @@ const Customer = () => {
         <div className="bg-[#3E73D3] rounded-sm py-16 px-6 text-center">
 
           {/* Heading */}
-          <h2 className="text-white text-4xl md:text-5xl font-bold leading-tight">
+          <h2 className="text-white text-xl sm:text-2xl md:text-5xl font-bold leading-tight">
             Exclusive Bulk Rates
             <br />
             for Corporates & Resellers!

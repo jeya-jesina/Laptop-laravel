@@ -59,7 +59,7 @@ const Deals = () => {
         {/* TOP BAR: GRADIENT HEADER SECTION */}
         <div className="bg-gradient-to-r from-[#f7cbb1] to-[#ff7a7a] px-8 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="text-center sm:text-left">
-            <h2 className="text-[26px] font-black text-[#1c1c1c] tracking-tight leading-tight">
+            <h2 className="text-xl sm:text-[26px] font-black text-[#1c1c1c] tracking-tight leading-tight">
               DEAL OF THE DAY
             </h2>
             <p className="text-[12px] text-[#2c2c2c] font-medium mt-0.5">

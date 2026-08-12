@@ -80,10 +80,10 @@ export default function Banner() {
                       <div className="pl-6 sm:pl-10 md:pl-14 lg:pl-16 max-w-[760px]">
                         {b.title && (
                           <h1 className="font-extrabold text-white leading-[1.08]
-                            text-[30px]
-                            sm:text-[42px]
-                            md:text-[58px]
-                            lg:text-[66px]">
+                          text-2xl
+                          sm:text-[42px]
+                          md:text-[58px]
+                          lg:text-[66px]">
                             {b.title}
                           </h1>
                         )}

@@ -43,23 +43,24 @@ const Clients = () => {
 
         {/* Heading */}
         <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-gray-900 mb-6">
-          OUR VALUABLE CLIENTS
+          <span className="block md:inline">OUR VALUABLE</span>{" "}
+          <span className="block md:inline">CLIENTS</span>
         </h2>
 
         {/* Auto Scroll */}
         <div className="relative overflow-hidden">
 
-          <div className="flex animate-client-scroll">
+          <div className="flex animate-client-scroll w-max">
 
             {[...logos, ...logos].map((logo, index) => (
               <div
                 key={`${logo.id}-${index}`}
-                className="flex-shrink-0 w-[220px] flex items-center justify-center"
+                className="flex-shrink-0 w-[180px] md:w-[220px] flex items-center justify-center"
               >
                 <img
                   src={resolveMediaUrl(logo.image_url)}
                   alt={logo.title || "Client Logo"}
-                  className="h-16 object-contain transition duration-300 hover:scale-105"
+                  className="h-10 md:h-16 object-contain transition duration-300 hover:scale-105"
                 />
               </div>
             ))}

@@ -51,12 +51,13 @@ const Enquire = () => {
   if (reviews.length === 0) return null;
 
   return (
-    <section className="w-full bg-white py-16">
+    <section className="w-full bg-white py-5 md:py-16">
       <div className="w-[92%] max-w-[1450px] mx-auto">
 
         {/* Heading */}
-        <h2 className="text-[38px] font-extrabold uppercase text-black mb-8 tracking-tight">
-          WHAT OUR CUSTOMERS SAYS
+        <h2 className="text-xl sm:text-2xl md:text-[38px] font-extrabold uppercase text-black mb-4 md:mb-8 tracking-tight">
+          <span className="block md:inline">WHAT OUR</span>{" "}
+          <span className="block md:inline">CUSTOMERS SAYS</span>
         </h2>
 
         {/* Cards - Auto Scroll */}
@@ -67,34 +68,34 @@ const Enquire = () => {
             {[...reviews, ...reviews].map((item, index) => (
               <div
                 key={`${item.id || index}-${index}`}
-                className="flex-shrink-0 w-[300px] mx-3 bg-white p-5 shadow-sm border border-gray-100 h-[270px] flex flex-col justify-between"
+                className="flex-shrink-0 w-[240px] md:w-[300px] mx-3 bg-white p-4 md:p-5 shadow-sm border border-gray-100 h-[220px] md:h-[270px] flex flex-col justify-between"
               >
 
                 <div>
 
                   <div className="flex items-center gap-3">
 
-                    <div className="w-11 h-11 rounded-full bg-red-500 text-white flex items-center justify-center font-bold">
+                    <div className="w-9 h-9 md:w-11 md:h-11 rounded-full bg-red-500 text-white flex items-center justify-center font-bold">
                       {(item.title || "?").charAt(0).toUpperCase()}
                     </div>
 
                     <div>
-                      <h3 className="font-semibold text-[15px]">
+                      <h3 className="font-semibold text-sm md:text-[15px]">
                         {item.title || "Customer"}
                       </h3>
 
-                      <StarRow rating={item.rating} size={13} />
+                      <StarRow rating={item.rating} size={12} />
                     </div>
 
                   </div>
 
-                  <p className="text-[13px] text-gray-700 mt-5 leading-6">
+                  <p className="text-xs md:text-[13px] text-gray-700 mt-4 md:mt-5 leading-5 md:leading-6">
                     {item.description}
                   </p>
 
                 </div>
 
-                <div className="flex justify-between items-center mt-6">
+                <div className="flex justify-between items-center mt-5 md:mt-6">
                   <a
                     href={item.link_url || "#"}
                     className="text-gray-500 text-xs underline hover:text-blue-600"
@@ -102,7 +103,7 @@ const Enquire = () => {
                     Read more...
                   </a>
 
-                  <span className="text-lg font-bold">
+                  <span className="text-sm md:text-lg font-bold">
                     <span className="text-[#4285F4]">G</span>
                     <span className="text-[#EA4335]">o</span>
                     <span className="text-[#FBBC05]">o</span>

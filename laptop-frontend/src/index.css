@@ -33,7 +33,7 @@ code {
   to   { transform: translateX(-50%); }
 }
 .animate-client-scroll {
-  animation: clientScroll 25s linear infinite;
+  animation: clientScroll 15s linear infinite;
 }
 
 @keyframes dropdownIn {
