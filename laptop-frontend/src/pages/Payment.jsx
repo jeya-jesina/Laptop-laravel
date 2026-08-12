@@ -1,41 +1,42 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
 import api from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import { useStore } from "../contexts/StoreContext";
 import { formatCurrency } from "../utils/formatters";
-import { 
-  CreditCard, 
-  Wallet, 
-  QrCode, 
-  IndianRupee, 
+import {
+  CreditCard,
+  Wallet,
+  QrCode,
   Building2,
   User,
   AlertCircle,
   CheckCircle,
-  FileText,
   MapPin,
   Phone,
-  Mail
+  Mail,
+  ShoppingBag,
+  Lock,
+  ShieldCheck,
 } from "lucide-react";
 
+const inputClass =
+  "w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3271D7] focus:border-transparent transition disabled:bg-gray-100";
+
+const labelClass = "block text-sm font-semibold text-gray-700 mb-1.5";
 
 export default function Payment() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { clearCart } = useStore();
-  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [invoiceData, setInvoiceData] = useState(null);
 
   // Get order data from navigation state
   const orderData = location.state || {};
   const isFromCart = orderData.fromCart || false;
-  const isFromProduct = orderData.fromProduct || false;
 
   // Payment form state
   const [form, setForm] = useState({
@@ -57,7 +58,7 @@ export default function Payment() {
 
     // Pre-fill user data if available
     if (user) {
-      setForm(prev => ({
+      setForm((prev) => ({
         ...prev,
         mobile: prev.mobile || user.phone || "",
         shipping_address: prev.shipping_address || user.address || "",
@@ -81,15 +82,15 @@ export default function Payment() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const validateForm = () => {
     // Validate mobile number
-    const phoneClean = form.mobile.replace(/[^0-9]/g, '');
+    const phoneClean = form.mobile.replace(/[^0-9]/g, "");
     if (!form.mobile || phoneClean.length !== 10) {
       setError("Please enter a valid 10-digit mobile number");
       return false;
@@ -134,7 +135,7 @@ export default function Payment() {
     let paidAmount = 0;
     let paymentStatus = "pending";
     let balanceAmount = totalWithGst;
-    
+
     if (form.payment_type === "credit") {
       paidAmount = 0;
       paymentStatus = "pending";
@@ -167,13 +168,12 @@ export default function Payment() {
 
       if (response.data?.success || response.data?.status) {
         setSuccess(true);
-        setInvoiceData(response.data);
-        
+
         // Clear cart if coming from cart
         if (isFromCart) {
           await clearCart();
         }
-        
+
         // Navigate to payment success after delay
         setTimeout(() => {
           navigate("/payment-success", {
@@ -189,7 +189,7 @@ export default function Payment() {
               customer_name: orderData.customer_name || user?.name,
               customer_phone: form.mobile,
               shipping_address: form.shipping_address,
-            }
+            },
           });
         }, 1500);
       } else {
@@ -220,14 +220,14 @@ export default function Payment() {
   // If no order data, show error
   if (!orderData || !orderData.items || orderData.items.length === 0) {
     return (
-      <div className="min-h-screen bg-[#f8f7f2] pt-28 px-4 md:px-8 lg:px-12 flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-[#f4f7fc] pt-28 px-4 md:px-8 lg:px-12 flex items-center justify-center">
+        <div className="text-center bg-white rounded-2xl shadow-sm border border-gray-100 p-12 max-w-md">
           <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-semibold text-gray-800">No Order Found</h2>
-          <p className="text-gray-600 mt-2">Please add items to your cart first.</p>
-          <button 
+          <h2 className="text-2xl font-bold text-gray-800">No Order Found</h2>
+          <p className="text-gray-500 mt-2">Please add items to your cart first.</p>
+          <button
             onClick={() => navigate("/")}
-            className="mt-4 px-6 py-2 bg-[#a97c50] text-white rounded-md hover:bg-[#8a6540] transition"
+            className="mt-4 px-6 py-2.5 bg-[#3271D7] text-white rounded-full hover:bg-[#265bb5] transition"
           >
             Go Shopping
           </button>
@@ -237,49 +237,58 @@ export default function Payment() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8f7f2] pt-28 px-4 md:px-8 lg:px-12">
+    <div className="min-h-screen bg-[#f4f7fc] pt-28 px-4 md:px-8 lg:px-12 pb-12">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-serif font-bold text-[#181818] mb-8">
-          Payment Details
-        </h1>
+        <div className="mb-8">
+          <h1 className="text-2xl md:text-3xl font-extrabold uppercase tracking-tight text-gray-900 flex items-center gap-3">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#3271D7] text-white">
+              <Wallet size={22} />
+            </span>
+            Payment Details
+          </h1>
+          <p className="mt-2 text-sm text-gray-500">Choose your payment method and confirm your order</p>
+        </div>
 
-        <div className="grid lg:grid-cols-[1.5fr_1fr] gap-8">
+        <div className="grid lg:grid-cols-[1.5fr_1fr] gap-8 items-start">
           {/* Payment Form */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-8">
             {error && (
-              <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-md text-sm border border-red-200 flex items-start gap-3">
+              <div className="mb-5 p-4 bg-red-50 text-red-700 rounded-xl text-sm border border-red-200 flex items-start gap-3">
                 <AlertCircle size={20} className="flex-shrink-0 mt-0.5" />
                 <span>{error}</span>
               </div>
             )}
 
             {success && (
-              <div className="mb-4 p-4 bg-green-50 text-green-700 rounded-md text-sm border border-green-200 flex items-start gap-3">
+              <div className="mb-5 p-4 bg-green-50 text-green-700 rounded-xl text-sm border border-green-200 flex items-start gap-3">
                 <CheckCircle size={20} className="flex-shrink-0 mt-0.5" />
                 <span>Payment successful! Redirecting...</span>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-7">
               {/* Customer Details */}
               <div>
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <User size={20} className="text-[#a97c50]" />
+                <h3 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-[#3271D7]">
+                    <User size={16} />
+                  </span>
                   Customer Details
                 </h3>
                 <div className="space-y-4">
-                  <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
-                    <div className="text-sm text-gray-500">Order for</div>
-                    <div className="mt-1 font-semibold text-lg">{orderData.customer_name || user?.name}</div>
-                    <div className="text-sm text-gray-500 flex items-center gap-1 mt-1">
-                      <Mail size={14} />
+                  <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-4">
+                    <div className="text-xs text-gray-500 uppercase tracking-wide">Order for</div>
+                    <div className="mt-1 font-bold text-gray-900 text-lg">
+                      {orderData.customer_name || user?.name}
+                    </div>
+                    <div className="text-sm text-gray-500 flex items-center gap-1.5 mt-1">
+                      <Mail size={14} className="text-[#3271D7]" />
                       {orderData.email || user?.email}
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      <Phone size={16} className="inline mr-1" />
-                      Mobile Number *
+                    <label className={labelClass}>
+                      <Phone size={14} className="inline mr-1 text-[#3271D7]" /> Mobile Number *
                     </label>
                     <input
                       type="tel"
@@ -287,14 +296,13 @@ export default function Payment() {
                       value={form.mobile}
                       onChange={handleChange}
                       disabled={submitting || success}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#a97c50] focus:border-transparent disabled:bg-gray-100"
+                      className={inputClass}
                       placeholder="Enter 10-digit mobile number"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      <MapPin size={16} className="inline mr-1" />
-                      Shipping Address *
+                    <label className={labelClass}>
+                      <MapPin size={14} className="inline mr-1 text-[#3271D7]" /> Shipping Address *
                     </label>
                     <textarea
                       name="shipping_address"
@@ -302,7 +310,7 @@ export default function Payment() {
                       onChange={handleChange}
                       disabled={submitting || success}
                       rows={3}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#a97c50] focus:border-transparent disabled:bg-gray-100 resize-none"
+                      className={`${inputClass} resize-none`}
                       placeholder="Enter shipping address"
                     />
                   </div>
@@ -310,9 +318,11 @@ export default function Payment() {
               </div>
 
               {/* Payment Method */}
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Wallet size={20} className="text-[#a97c50]" />
+              <div className="border-t border-gray-100 pt-6">
+                <h3 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-[#3271D7]">
+                    <CreditCard size={16} />
+                  </span>
                   Payment Method
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -320,141 +330,36 @@ export default function Payment() {
                     <button
                       key={method.value}
                       type="button"
-                      onClick={() => setForm(prev => ({ ...prev, payment_method: method.value }))}
+                      onClick={() => setForm((prev) => ({ ...prev, payment_method: method.value }))}
                       disabled={submitting || success}
-                      className={`p-3 border-2 rounded-lg text-center transition ${
+                      className={`p-4 rounded-2xl border-2 text-center transition-all duration-200 ${
                         form.payment_method === method.value
-                          ? "border-[#a97c50] bg-[#f8f7f2]"
-                          : "border-gray-200 hover:border-gray-300"
+                          ? "border-[#3271D7] bg-blue-50 shadow-md shadow-blue-100 scale-[1.02]"
+                          : "border-gray-100 bg-gray-50 hover:border-gray-300 hover:bg-white"
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
-                      <method.icon className="mx-auto h-6 w-6 mb-1" />
-                      <span className="text-xs font-medium">{method.label}</span>
+                      <method.icon
+                        className={`mx-auto h-7 w-7 mb-2 ${
+                          form.payment_method === method.value ? "text-[#3271D7]" : "text-gray-400"
+                        }`}
+                      />
+                      <span
+                        className={`text-xs font-semibold ${
+                          form.payment_method === method.value ? "text-[#3271D7]" : "text-gray-600"
+                        }`}
+                      >
+                        {method.label}
+                      </span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Payment Type */}
-              {/* <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4">Payment Type</h3>
-                <div className="flex gap-6">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="payment_type"
-                      value="cash"
-                      checked={form.payment_type === "cash"}
-                      onChange={handleChange}
-                      disabled={submitting || success}
-                      className="w-4 h-4 text-[#a97c50]"
-                    />
-                    <span className="text-sm font-medium">Cash</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="payment_type"
-                      value="credit"
-                      checked={form.payment_type === "credit"}
-                      onChange={handleChange}
-                      disabled={submitting || success}
-                      className="w-4 h-4 text-[#a97c50]"
-                    />
-                    <span className="text-sm font-medium">Credit</span>
-                  </label>
-                </div>
-              </div> */}
-
-              {/* Paid Amount for Cash Payment */}
-              {/* {form.payment_type === "cash" && (
-                <div className="border-t pt-6">
-                  <h3 className="text-lg font-semibold mb-4">Payment Amount</h3>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Amount Paying
-                    </label>
-                    <input
-                      type="number"
-                      name="paid_amount"
-                      value={form.paid_amount}
-                      onChange={handleChange}
-                      disabled={submitting || success}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#a97c50] focus:border-transparent disabled:bg-gray-100"
-                      placeholder={`Enter amount (Max: ${formatCurrency(total)})`}
-                      min="0"
-                      max={total}
-                      step="0.01"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Total: {formatCurrency(total)}
-                    </p>
-                    {form.paid_amount > 0 && form.paid_amount < total && (
-                      <p className="text-xs text-yellow-600 mt-1">
-                        Balance: {formatCurrency(total - form.paid_amount)}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )} */}
-
-              {/* GST Options */}
-              {/* <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <FileText size={20} className="text-[#a97c50]" />
-                  GST Details
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex gap-6">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="gst_type"
-                        value="without_gst"
-                        checked={form.gst_type === "without_gst"}
-                        onChange={handleChange}
-                        disabled={submitting || success}
-                        className="w-4 h-4 text-[#a97c50]"
-                      />
-                      <span className="text-sm font-medium">Without GST</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="gst_type"
-                        value="with_gst"
-                        checked={form.gst_type === "with_gst"}
-                        onChange={handleChange}
-                        disabled={submitting || success}
-                        className="w-4 h-4 text-[#a97c50]"
-                      />
-                      <span className="text-sm font-medium">With GST</span>
-                    </label>
-                  </div>
-                  {form.gst_type === "with_gst" && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        GST Number
-                      </label>
-                      <input
-                        type="text"
-                        name="gst_no"
-                        value={form.gst_no}
-                        onChange={handleChange}
-                        disabled={submitting || success}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#a97c50] focus:border-transparent disabled:bg-gray-100"
-                        placeholder="Enter GST number (e.g., 22AAAAA0000A1Z5)"
-                      />
-                    </div>
-                  )}
-                </div>
-              </div> */}
-
               {/* Submit Button */}
               <button
                 type="submit"
                 disabled={submitting || success}
-                className="w-full bg-[#181818] text-white py-3.5 rounded-md hover:bg-[#333] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg font-medium"
+                className="w-full bg-[#3271D7] text-white py-4 rounded-xl hover:bg-[#265bb5] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg font-bold shadow-lg shadow-blue-200"
               >
                 {submitting ? (
                   <>
@@ -466,55 +371,70 @@ export default function Payment() {
                   </>
                 ) : (
                   <>
-                    <IndianRupee size={20} />
+                    <Lock size={20} />
                     Pay {formatCurrency(total)}
                   </>
                 )}
               </button>
+
+              <p className="text-center text-xs text-gray-400 flex items-center justify-center gap-1.5">
+                <ShieldCheck size={14} className="text-green-600" /> Your payment is secure and encrypted
+              </p>
             </form>
           </div>
 
           {/* Order Summary */}
-          <div className="bg-white rounded-xl shadow-sm p-6 h-fit sticky top-28">
-            <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-            
-            <div className="space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Subtotal</span>
-                <span className="font-medium">{formatCurrency(subtotal)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">GST</span>
-                <span className="font-medium">{formatCurrency(gstTotal)}</span>
-              </div>
-              <div className="border-t pt-3 flex justify-between font-semibold text-lg">
-                <span>Total</span>
-                <span className="text-[#a97c50]">{formatCurrency(totalWithGst)}</span>
-              </div>
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden h-fit sticky top-28">
+            <div className="bg-gradient-to-r from-[#3271D7] to-[#4f8ef5] px-6 py-5">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <ShoppingBag size={20} /> Order Summary
+              </h2>
             </div>
 
-            <div className="mt-6 border-t pt-4">
-              <h4 className="text-sm font-medium text-gray-700 mb-2">Items</h4>
-              <div className="space-y-2 max-h-48 overflow-y-auto">
-                {items.map((item, index) => (
-                  <div key={index} className="flex justify-between text-sm py-1 border-b border-gray-50">
-                    <span className="text-gray-600">
-                      {item.product_name} × {item.quantity}
-                    </span>
-                    <span className="font-medium">
-                      {formatCurrency(item.price * item.quantity)}
-                    </span>
-                  </div>
-                ))}
+            <div className="p-6">
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Subtotal</span>
+                  <span className="font-semibold text-gray-900">{formatCurrency(subtotal)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">GST</span>
+                  <span className="font-semibold text-gray-900">{formatCurrency(gstTotal)}</span>
+                </div>
+                <div className="border-t border-dashed border-gray-200 pt-3 flex justify-between font-bold text-lg">
+                  <span className="text-gray-900">Total</span>
+                  <span className="text-[#3271D7]">{formatCurrency(totalWithGst)}</span>
+                </div>
               </div>
-            </div>
 
-            {user && (
-              <div className="mt-4 pt-4 border-t text-xs text-gray-500">
-                <p className="flex items-center gap-1">✓ Order will be linked to your account</p>
-                <p className="mt-1">You can view your orders in your profile</p>
+              <div className="mt-6 border-t border-gray-100 pt-5">
+                <h4 className="text-sm font-bold text-gray-900 mb-3">Items</h4>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {items.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between text-sm py-2 px-3 bg-gray-50 rounded-xl"
+                    >
+                      <span className="text-gray-600">
+                        {item.product_name} <span className="text-gray-400">× {item.quantity}</span>
+                      </span>
+                      <span className="font-semibold text-gray-900">
+                        {formatCurrency(item.price * item.quantity)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            )}
+
+              {user && (
+                <div className="mt-5 pt-4 border-t border-gray-100 text-xs text-gray-500">
+                  <p className="flex items-center gap-1.5">
+                    <ShieldCheck size={14} className="text-green-600" /> Order will be linked to your account
+                  </p>
+                  <p className="mt-1">You can view your orders in your profile</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

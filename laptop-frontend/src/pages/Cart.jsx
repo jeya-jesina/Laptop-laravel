@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import api, { resolveMediaUrl, API_BASE_URL } from "../services/api";
+import { ShoppingCart, ArrowRight, Trash2, Plus, Minus, PackageOpen } from "lucide-react";
+import api, { resolveMediaUrl } from "../services/api";
 import { formatCurrency } from "../utils/formatters";
 import { useStore } from "../contexts/StoreContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -8,56 +9,60 @@ import { showToast } from "../utils/toast";
 
 // ─── Helper Component: Loading Spinner ──────────────────────────────────────
 const LoadingSpinner = () => (
-  <div className="min-h-screen bg-[#f8f7f2] pt-28 pb-12 px-4 flex items-center justify-center">
-    <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#a97c50]/20 border-t-[#a97c50]" />
+  <div className="min-h-screen bg-[#f4f7fc] pt-28 pb-12 px-4 flex items-center justify-center">
+    <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#3271D7]/20 border-t-[#3271D7]" />
   </div>
 );
 
 // ─── Helper Component: Empty Cart ──────────────────────────────────────────
 const EmptyCart = () => (
-  <div className="rounded-xl bg-white p-6 shadow text-center">
-    <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-      <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-      </svg>
+  <div className="rounded-2xl bg-white border border-gray-100 shadow-sm p-12 text-center">
+    <div className="w-24 h-24 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-6">
+      <PackageOpen className="w-12 h-12 text-[#3271D7]" />
     </div>
-    <p className="text-gray-500 text-lg">Your cart is empty.</p>
-    <p className="text-gray-400 text-sm mt-1">Start shopping to add items to your cart</p>
-    <Link to="/" className="mt-6 inline-block px-6 py-2 bg-[#a97c50] text-white rounded-full hover:bg-[#8a6540] transition">
-      Continue Shopping →
+    <h3 className="text-xl font-bold text-gray-900">Your cart is empty</h3>
+    <p className="text-gray-500 text-sm mt-2">Start shopping to add items to your cart</p>
+    <Link
+      to="/"
+      className="mt-6 inline-flex items-center gap-2 px-8 py-3 bg-[#3271D7] text-white rounded-full hover:bg-[#265bb5] transition shadow-md shadow-blue-200"
+    >
+      Continue Shopping <ArrowRight size={18} />
     </Link>
   </div>
 );
 
 // ─── Helper Component: Single Cart Item ────────────────────────────────────
 const CartItem = ({ item, onUpdate, onRemove }) => {
-  const imageSrc = resolveMediaUrl(item.image) || 
-                   "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0";
+  const imageSrc =
+    resolveMediaUrl(item.image) ||
+    "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0";
 
   return (
-    <div className="flex flex-col md:flex-row items-start md:items-center justify-between rounded-xl bg-white p-3 md:p-4 shadow-sm hover:shadow-md transition">
+    <div className="flex flex-col md:flex-row items-start md:items-center justify-between rounded-2xl bg-white p-4 md:p-5 border border-gray-100 shadow-sm hover:shadow-lg hover:border-blue-100 transition-all duration-300">
       {/* Left: Image + Details */}
-      <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto">
-        <div className="h-14 w-14 sm:h-16 sm:w-16 md:h-24 md:w-24 rounded-lg overflow-hidden bg-[#f8f7f2] flex items-center justify-center flex-shrink-0">
+      <div className="flex items-center gap-4 w-full md:w-auto">
+        <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-xl overflow-hidden bg-[#F5F5F5] flex items-center justify-center flex-shrink-0">
           <img
             src={imageSrc}
             alt={item.product_name || "Product"}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain mix-blend-multiply p-1.5"
           />
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm md:text-base font-semibold truncate">{item.product_name}</h3>
-          <p className="text-sm font-medium text-[#a97c50]">
+          <h3 className="text-sm md:text-base font-semibold text-gray-900 truncate">
+            {item.product_name}
+          </h3>
+          <p className="text-lg font-bold text-[#3271D7] mt-1">
             {formatCurrency(Number(item.price))}
             {Number(item.gst_percentage) > 0 && (
-              <span className="text-xs text-gray-400 ml-1">
-                (GST: {item.gst_percentage}%)
+              <span className="text-xs text-gray-400 font-normal ml-1">
+                (incl. GST {item.gst_percentage}%)
               </span>
             )}
           </p>
           {item.size && (
-            <span className="inline-flex items-center rounded-full bg-[#f0f0f0] px-2.5 py-0.5 text-[11px] md:text-xs font-medium text-gray-700 mt-1">
+            <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] md:text-xs font-medium text-[#3271D7] mt-2">
               Size: {item.size}
             </span>
           )}
@@ -65,29 +70,31 @@ const CartItem = ({ item, onUpdate, onRemove }) => {
       </div>
 
       {/* Right: Quantity + Remove */}
-      <div className="flex items-center gap-2 md:gap-3 mt-2 md:mt-0 w-full md:w-auto justify-end">
-        <div className="flex items-center gap-1.5 md:gap-2">
+      <div className="flex items-center gap-3 mt-3 md:mt-0 w-full md:w-auto justify-between md:justify-end">
+        <div className="flex items-center gap-2 bg-blue-50 rounded-full px-2 py-1.5">
           <button
             onClick={() => onUpdate(item.id, Number(item.quantity) - 1)}
-            className="h-7 w-7 md:h-8 md:w-8 rounded-full border hover:bg-gray-50 transition flex items-center justify-center disabled:opacity-40"
+            className="h-8 w-8 rounded-full bg-white text-[#3271D7] shadow-sm hover:bg-blue-100 transition flex items-center justify-center disabled:opacity-40"
             disabled={Number(item.quantity) <= 1}
+            aria-label="Decrease quantity"
           >
-            −
+            <Minus size={14} />
           </button>
-          <span className="w-5 md:w-6 text-center font-medium">{item.quantity}</span>
+          <span className="w-6 text-center font-bold text-gray-900">{item.quantity}</span>
           <button
             onClick={() => onUpdate(item.id, Number(item.quantity) + 1)}
-            className="h-7 w-7 md:h-8 md:w-8 rounded-full border hover:bg-gray-50 transition flex items-center justify-center"
+            className="h-8 w-8 rounded-full bg-white text-[#3271D7] shadow-sm hover:bg-blue-100 transition flex items-center justify-center"
+            aria-label="Increase quantity"
           >
-            +
+            <Plus size={14} />
           </button>
         </div>
 
         <button
           onClick={() => onRemove(item.id)}
-          className="text-red-500 text-xs md:text-sm hover:text-red-700 transition ml-2"
+          className="flex items-center gap-1.5 text-red-500 text-xs md:text-sm font-medium hover:text-red-700 transition"
         >
-          Remove
+          <Trash2 size={16} /> Remove
         </button>
       </div>
     </div>
@@ -96,56 +103,65 @@ const CartItem = ({ item, onUpdate, onRemove }) => {
 
 // ─── Helper Component: Order Summary ───────────────────────────────────────
 const OrderSummary = ({ subtotal, gst, total, onCheckout, itemCount }) => {
-  const avgGst = itemCount > 0 && gst > 0 
-    ? Math.round((gst / subtotal) * 100) 
-    : 0;
+  const avgGst = itemCount > 0 && gst > 0 ? Math.round((gst / subtotal) * 100) : 0;
 
   return (
-    <div className="rounded-xl bg-white p-4 md:p-6 shadow-sm h-fit sticky top-24 md:top-28">
-      <h2 className="text-lg md:text-xl font-semibold">Order Summary</h2>
-
-      <div className="mt-3 md:mt-5 space-y-3">
-        <div className="flex justify-between">
-          <span className="text-gray-600">Subtotal</span>
-          <span className="font-medium">{formatCurrency(subtotal)}</span>
-        </div>
-
-        {gst > 0 && (
-          <div className="flex justify-between">
-            <span className="text-gray-600">GST ({avgGst}%)</span>
-            <span className="font-medium">{formatCurrency(gst)}</span>
-          </div>
-        )}
-
-        <div className="flex justify-between">
-          <span className="text-gray-600">Shipping</span>
-          <span className="text-green-600">Free</span>
-        </div>
-
-        <hr className="my-2" />
-
-        <div className="flex justify-between font-bold text-lg">
-          <span>Total</span>
-          <span>{formatCurrency(total)}</span>
-        </div>
-
-        {gst > 0 && (
-          <div className="text-xs text-gray-400 text-right mt-1">
-            Inclusive of all taxes
-          </div>
-        )}
+    <div className="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden h-fit sticky top-24 md:top-28">
+      <div className="bg-gradient-to-r from-[#3271D7] to-[#4f8ef5] px-6 py-5">
+        <h2 className="text-lg font-bold text-white flex items-center gap-2">
+          <ShoppingCart size={20} /> Order Summary
+        </h2>
       </div>
 
-      <Link to="/" className="block text-center mt-5 text-[#a97c50] hover:underline">
-        Continue Shopping
-      </Link>
+      <div className="p-6">
+        <div className="space-y-4">
+          <div className="flex justify-between">
+            <span className="text-gray-600">Subtotal</span>
+            <span className="font-semibold text-gray-900">{formatCurrency(subtotal)}</span>
+          </div>
 
-      <button
-        onClick={onCheckout}
-        className="w-full mt-4 bg-[#181818] text-white py-3 rounded-md hover:bg-[#333] transition"
-      >
-        Proceed to Checkout
-      </button>
+          {gst > 0 && (
+            <div className="flex justify-between">
+              <span className="text-gray-600">GST ({avgGst}%)</span>
+              <span className="font-semibold text-gray-900">{formatCurrency(gst)}</span>
+            </div>
+          )}
+
+          <div className="flex justify-between">
+            <span className="text-gray-600">Shipping</span>
+            <span className="text-green-600 font-semibold">Free</span>
+          </div>
+
+          <div className="border-t border-dashed border-gray-200" />
+
+          <div className="flex justify-between items-center">
+            <span className="text-gray-900 font-bold text-lg">Total</span>
+            <span className="font-extrabold text-2xl text-[#3271D7]">
+              {formatCurrency(total)}
+            </span>
+          </div>
+
+          {gst > 0 && (
+            <p className="text-xs text-gray-400 text-right -mt-2">
+              Inclusive of all taxes
+            </p>
+          )}
+        </div>
+
+        <button
+          onClick={onCheckout}
+          className="w-full mt-6 flex items-center justify-center gap-2 bg-[#3271D7] text-white py-3.5 rounded-xl hover:bg-[#265bb5] transition font-semibold shadow-lg shadow-blue-200"
+        >
+          Proceed to Checkout <ArrowRight size={18} />
+        </button>
+
+        <Link
+          to="/"
+          className="block text-center mt-4 text-[#3271D7] text-sm font-medium hover:underline"
+        >
+          Continue Shopping
+        </Link>
+      </div>
     </div>
   );
 };
@@ -204,7 +220,7 @@ export default function Cart() {
     if (!cartItems || cartItems.length === 0) return 0;
     return cartItems.reduce((sum, item) => {
       const gst = Number(item.gst_percentage || 0);
-      return sum + (Number(item.price) * Number(item.quantity) * gst / 100);
+      return sum + (Number(item.price) * Number(item.quantity) * gst) / 100;
     }, 0);
   }, [cartItems]);
 
@@ -242,15 +258,23 @@ export default function Cart() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="min-h-screen bg-[#f8f7f2] pt-20 md:pt-28 pb-12 px-4 md:px-8 lg:px-12">
-      <div className="max-w-7xl mx-auto grid lg:grid-cols-[2fr_1fr] gap-8">
-        {/* ─── Left Column: Cart Items ────────────────────────────────── */}
-        <div>
-          <h1 className="text-2xl md:text-3xl font-semibold uppercase tracking-wider lg:tracking-[4px]">
-            Cart ({cartItems?.length || 0})
-          </h1>
+    <div className="min-h-screen bg-[#f4f7fc] pt-20 md:pt-28 pb-12 px-4 md:px-8 lg:px-12">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-2xl md:text-3xl font-extrabold uppercase tracking-tight text-gray-900 flex items-center gap-3">
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#3271D7] text-white">
+            <ShoppingCart size={22} />
+          </span>
+          Cart
+          {cartItems?.length > 0 && (
+            <span className="text-sm font-bold bg-blue-50 text-[#3271D7] px-3 py-1 rounded-full">
+              {cartItems.length} item{cartItems.length > 1 ? "s" : ""}
+            </span>
+          )}
+        </h1>
 
-          <div className="mt-6 space-y-4">
+        <div className="mt-8 grid lg:grid-cols-[2fr_1fr] gap-8 items-start">
+          {/* ─── Left Column: Cart Items ────────────────────────────────── */}
+          <div className="space-y-4">
             {!cartItems || cartItems.length === 0 ? (
               <EmptyCart />
             ) : (
@@ -264,18 +288,18 @@ export default function Cart() {
               ))
             )}
           </div>
-        </div>
 
-        {/* ─── Right Column: Order Summary ───────────────────────────── */}
-        {cartItems && cartItems.length > 0 && (
-          <OrderSummary
-            subtotal={subtotal}
-            gst={gstTotal}
-            total={grandTotal}
-            itemCount={cartItems.length}
-            onCheckout={handleCheckout}
-          />
-        )}
+          {/* ─── Right Column: Order Summary ───────────────────────────── */}
+          {cartItems && cartItems.length > 0 && (
+            <OrderSummary
+              subtotal={subtotal}
+              gst={gstTotal}
+              total={grandTotal}
+              itemCount={cartItems.length}
+              onCheckout={handleCheckout}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
