@@ -153,7 +153,7 @@ export default function BudgerRefurbished() {
                   <img
                     src={resolveMediaUrl(p.image)}
                     alt={p.product_name || "Budget Offer"}
-                    className="max-w-[75%] max-h-[120px] object-contain"
+                    className="max-w-[75%] max-h-[120px] object-contain mix-blend-multiply"
                   />
                   {discountPct > 0 && (
                     <span className="absolute top-2 right-2 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded">

@@ -32,13 +32,13 @@ export default function ProductCard({ product, onNavigate, onAddToCart, onAddToW
       className="group bg-white rounded-xl border border-gray-200 overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-300 flex flex-col"
     >
       {/* Image */}
-      <div className="relative bg-[#f3f6fb] overflow-hidden h-52">
+      <div className="relative bg-[#F5F5F5] overflow-hidden h-52">
         {image ? (
           <img
             src={image}
             alt={product?.product_name || "Product"}
             onError={() => setImageError(true)}
-            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-contain mix-blend-multiply scale-110 group-hover:scale-125 transition-transform duration-300"
             loading="lazy"
           />
         ) : (

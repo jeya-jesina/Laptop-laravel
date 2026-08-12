@@ -50,11 +50,6 @@ const Enquire = () => {
   if (loading) return null;
   if (reviews.length === 0) return null;
 
-  const ratings = reviews.map((r) => Number(r.rating) || 0);
-  const avgRating = ratings.length
-    ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1)
-    : "0.0";
-
   return (
     <section className="w-full bg-white py-16">
       <div className="w-[92%] max-w-[1450px] mx-auto">
@@ -64,61 +59,15 @@ const Enquire = () => {
           WHAT OUR CUSTOMERS SAYS
         </h2>
 
-        {/* Main Box */}
-        <div className="bg-[#E8F0FF] border border-[#C7D8FF] px-10 py-10">
+        {/* Cards - Auto Scroll */}
+        <div className="relative overflow-hidden">
 
-          {/* Top */}
-          <div className="flex justify-between items-center mb-10">
+            <div className="flex animate-client-scroll w-max">
 
-            {/* Rating */}
-            <div className="flex items-center gap-6">
-
-              <div className="text-center">
-                <h3 className="text-5xl font-bold text-[#222] leading-none">
-                  {avgRating}
-                </h3>
-
-                <div className="flex justify-center mt-2">
-                  <span className="text-[#4285F4] font-bold text-sm">G</span>
-                  <span className="text-[#EA4335] font-bold text-sm">o</span>
-                  <span className="text-[#FBBC05] font-bold text-sm">o</span>
-                  <span className="text-[#4285F4] font-bold text-sm">g</span>
-                  <span className="text-[#34A853] font-bold text-sm">l</span>
-                  <span className="text-[#EA4335] font-bold text-sm">e</span>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex text-[#F4B400] mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      size={18}
-                      fill="#F4B400"
-                      strokeWidth={0}
-                    />
-                  ))}
-                </div>
-
-                <p className="text-sm text-gray-700">
-                  Based on <strong>{reviews.length} reviews</strong>
-                </p>
-              </div>
-            </div>
-
-            {/* Button */}
-            <button className="bg-white text-[#3E73D3] text-sm font-semibold px-8 py-3 rounded-full shadow hover:bg-gray-100 transition">
-              REVIEW NOW
-            </button>
-          </div>
-
-          {/* Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-
-            {reviews.map((item, index) => (
+            {[...reviews, ...reviews].map((item, index) => (
               <div
-                key={item.id || index}
-                className="bg-white p-5 shadow-sm border border-gray-100 h-[270px] flex flex-col justify-between"
+                key={`${item.id || index}-${index}`}
+                className="flex-shrink-0 w-[300px] mx-3 bg-white p-5 shadow-sm border border-gray-100 h-[270px] flex flex-col justify-between"
               >
 
                 <div>
@@ -166,9 +115,9 @@ const Enquire = () => {
               </div>
             ))}
 
+            </div>
           </div>
         </div>
-      </div>
     </section>
   );
 };

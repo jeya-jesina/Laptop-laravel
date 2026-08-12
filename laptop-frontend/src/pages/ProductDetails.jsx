@@ -388,7 +388,7 @@ export default function ProductDetails() {
         <div>
           {/* Main Media Display - No black background */}
           <div 
-            className="relative rounded-xl overflow-hidden cursor-pointer bg-[#f8f7f2]"
+            className="relative rounded-xl overflow-hidden cursor-pointer bg-white"
             onClick={openFullscreen}
           >
             {currentMedia?.type === 'video' ? (
@@ -407,7 +407,7 @@ export default function ProductDetails() {
               <img
                 src={currentMedia?.url || productImages[0]}
                 alt={product.product_name}
-                className="w-full h-[520px] object-contain"
+                className="w-full h-[520px] object-contain mix-blend-multiply scale-[1.05]"
               />
             )}
 

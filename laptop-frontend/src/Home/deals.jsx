@@ -83,7 +83,7 @@ const Deals = () => {
                 <img
                   src={resolveMediaUrl(deal.image_url)}
                   alt={deal.title || "Deal"}
-                  className="w-full h-auto object-contain"
+                  className="w-full h-auto object-contain mix-blend-multiply"
                 />
               )}
             </div>

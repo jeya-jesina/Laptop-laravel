@@ -119,7 +119,7 @@ export default function Wishlist() {
                     <img 
                       src={resolveImageUrl(item.image || "") || "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0"} 
                       alt={item.product_name} 
-                      className="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-105"
+                      className="w-full h-full object-contain p-4 mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
                     />
                     
                     {/* Wishlist badge */}
