@@ -27,7 +27,7 @@ export function AuthProvider({ children }) {
       if (payload?.status) {
         const userData = payload.data || payload.user || null;
         if (userData) {
-          setUser(userData);
+          setUser({ ...userData, role: payload.role || userData.role || 'user' });
           localStorage.setItem('token', payload.active_token || '');
         }
       }
@@ -54,10 +54,18 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("botik_user");
-    localStorage.removeItem("token");
-    setUser(null);
+  const logout = async () => {
+    try {
+      if (user?.id) {
+        await api.post('/auth/logout', { id: user.id, role: user.role });
+      }
+    } catch (err) {
+      console.error('Logout failed:', err);
+    } finally {
+      localStorage.removeItem("botik_user");
+      localStorage.removeItem("token");
+      setUser(null);
+    }
   };
 
   const updateProfile = async (userData) => {
