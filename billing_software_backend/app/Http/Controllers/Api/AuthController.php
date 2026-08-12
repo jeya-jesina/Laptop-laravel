@@ -401,7 +401,7 @@ class AuthController extends Controller
 
         if ($id) {
             $user = User::where('id', $id)->first();
-            if ($user && $user->role === $role) {
+            if ($user && (!$role || $user->role === $role)) {
                 $user->update(['active_token' => null]);
             }
         }
