@@ -95,7 +95,7 @@ export default function LaptopDeals() {
                 <img
                   src={resolveMediaUrl(banner.image_url)}
                   alt={banner.title || "Laptop Deal"}
-                  className="w-full max-w-[180px] object-contain hover:scale-105 transition-transform duration-300"
+                  className="w-full max-w-[180px] object-contain mix-blend-multiply hover:scale-105 transition-transform duration-300"
                 />
               </div>
             </div>
