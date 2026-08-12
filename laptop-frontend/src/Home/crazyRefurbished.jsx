@@ -75,7 +75,7 @@ export default function CrazyRefurbished() {
   if (products.length === 0) return null;
 
   return (
-    <section className="w-full bg-white py-8">
+    <section className="w-full bg-white py-3 md:py-8">
       <div className="max-w-[93%] mx-auto px-6 md:px-8 lg:px-10">
 
         {/* Header */}
@@ -92,7 +92,7 @@ export default function CrazyRefurbished() {
         </div>
 
         {/* Filter pills */}
-        <div className="flex flex-wrap gap-3 mb-6">
+        <div className="flex flex-wrap gap-2 md:gap-3 mb-3 md:mb-6">
           {filters.map((f) => (
             <button
               key={f.label}
@@ -108,7 +108,7 @@ export default function CrazyRefurbished() {
         </div>
 
         {/* Product grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4">
           {products.map((p) => {
             const price = Number(p.offer_price) || Number(p.price) || 0;
             const mrp = Number(p.original_price) || price;
@@ -120,11 +120,11 @@ export default function CrazyRefurbished() {
                 className="flex flex-col rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow bg-white cursor-pointer"
               >
                 {/* Image */}
-                <div className="relative bg-[#F5F5F5] h-[150px] flex items-center justify-center">
+                <div className="relative bg-[#F5F5F5] h-[90px] md:h-[150px] flex items-center justify-center">
                   <img
                     src={resolveMediaUrl(p.image)}
                     alt={p.product_name || "Offer"}
-                    className="max-w-[75%] max-h-[120px] object-contain mix-blend-multiply"
+                    className="max-w-[75%] max-h-[70px] md:max-h-[120px] object-contain mix-blend-multiply"
                   />
                   {discountPct > 0 && (
                     <span className="absolute top-2 right-2 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded">
@@ -134,21 +134,21 @@ export default function CrazyRefurbished() {
                 </div>
 
                 {/* Details */}
-                <div className="flex flex-col flex-1 p-3">
+                <div className="flex flex-col flex-1 p-2 md:p-3">
 
                   {/* Brand */}
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[11px] font-semibold tracking-[2px] uppercase text-gray-500">
+                    <span className="text-[9px] md:text-[11px] font-semibold tracking-[2px] uppercase text-gray-500">
                       {p.brand_name || "Laptop"}
                     </span>
                   </div>
 
                   {/* Product Title */}
-                  <p className="text-xs text-gray-800 leading-snug line-clamp-3 mb-2 min-h-[54px]">
+                  <p className="text-[10px] md:text-xs text-gray-800 leading-tight line-clamp-1 truncate mb-1 min-h-0">
                     {p.product_name}
                   </p>
                   <div className="flex items-baseline gap-2 mb-1">
-                    <span className="text-sm font-bold text-gray-900">
+                    <span className="text-xs md:text-sm font-bold text-gray-900">
                       {formatINR(price)}
                     </span>
                     {mrp > price && (
@@ -159,18 +159,18 @@ export default function CrazyRefurbished() {
                   </div>
 
                   {p.warranty ? (
-                    <span className="text-[10px] text-green-600 font-medium mb-2">
+                    <span className="text-[9px] md:text-[10px] text-green-600 font-medium mb-1.5">
                       ✓ {p.warranty}
                     </span>
                   ) : (
-                    <span className="text-[10px] text-transparent mb-2">
+                    <span className="text-[9px] md:text-[10px] text-transparent mb-1.5">
                       placeholder
                     </span>
                   )}
 
                   <button
                     onClick={(e) => handleAddToCart(e, p)}
-                    className="mt-auto w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 rounded"
+                    className="mt-auto w-full bg-blue-600 hover:bg-blue-700 text-white text-[10px] md:text-xs font-semibold py-1 md:py-2 rounded"
                   >
                     ADD TO CART
                   </button>

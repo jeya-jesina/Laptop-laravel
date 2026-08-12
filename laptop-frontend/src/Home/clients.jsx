@@ -42,7 +42,7 @@ const Clients = () => {
       <div className="max-w-7xl mx-auto px-6">
 
         {/* Heading */}
-        <h2 className="text-[34px] font-extrabold text-[#222] uppercase mb-10">
+        <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-gray-900 mb-6">
           OUR VALUABLE CLIENTS
         </h2>
 

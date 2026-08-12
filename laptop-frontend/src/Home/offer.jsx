@@ -41,23 +41,23 @@ export default function LaptopDeals() {
 
   return (
     <div
-      className="min-h-screen w-full flex items-center justify-center p-6"
+      className="min-h-screen w-full flex items-center justify-center p-3 sm:p-6"
       style={{ backgroundColor: "#E1EDFF" }}
     >
       <div className="w-full max-w-6xl">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
           {banners.map((banner) => (
             <div
               key={banner.id}
               onClick={() => banner.link_url && navigate(banner.link_url)}
               style={{ backgroundColor: banner.bg_color || "#B2EDD5" }}
-              className={`p-8 flex flex-col justify-between min-h-[420px] hover:shadow-lg transition-shadow duration-300 ${
+              className={`p-3 md:p-8 flex flex-col justify-between min-h-[230px] md:min-h-[420px] hover:shadow-lg transition-shadow duration-300 ${
                 banner.link_url ? "cursor-pointer" : ""
               }`}
             >
               <div>
                 <h3
-                  className="text-xl font-semibold leading-snug"
+                  className="text-[13px] md:text-xl font-semibold leading-snug line-clamp-2 md:line-clamp-none"
                   style={{
                     fontFamily: "Poppins, sans-serif",
                     color: "#181818",
@@ -68,7 +68,7 @@ export default function LaptopDeals() {
 
                 {banner.badge && (
                   <p
-                    className="text-sm mt-2 text-[#3271D7]"
+                    className="text-[10px] md:text-sm mt-2 text-[#3271D7]"
                     style={{
                       fontFamily: "Poppins, sans-serif",
                       color: "#181818",
@@ -84,18 +84,18 @@ export default function LaptopDeals() {
                     e.stopPropagation();
                     if (banner.link_url) navigate(banner.link_url);
                   }}
-                  className="inline-block text-sm font-medium text-[#3271D7] underline underline-offset-2 mt-2 hover:opacity-80"
+                  className="inline-block text-[11px] md:text-sm font-medium text-[#3271D7] underline underline-offset-2 mt-1 md:mt-2 hover:opacity-80"
                   style={{ fontFamily: "Poppins, sans-serif" }}
                 >
                   Shop Now
                 </a>
               </div>
 
-              <div className="mt-6 flex justify-center">
+              <div className="mt-3 md:mt-6 flex justify-center">
                 <img
                   src={resolveMediaUrl(banner.image_url)}
                   alt={banner.title || "Laptop Deal"}
-                  className="w-full max-w-[180px] object-contain mix-blend-multiply hover:scale-105 transition-transform duration-300"
+                  className="w-full max-w-[100px] md:max-w-[180px] object-contain mix-blend-multiply hover:scale-105 transition-transform duration-300"
                 />
               </div>
             </div>
