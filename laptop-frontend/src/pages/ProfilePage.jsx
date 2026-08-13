@@ -160,7 +160,7 @@ function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-[#f8f7f2]">
-      <div className="max-w-5xl mx-auto px-4 py-8 pt-28 md:pt-32">
+      <div className="max-w-5xl mx-auto px-4 py-8 pt-12 md:pt-32">
         {/* Header Section with Gradient */}
         <div className="bg-gradient-to-r from-[#3271D7] to-[#0f3d91] rounded-2xl p-6 md:p-8 mb-8 shadow-xl relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">

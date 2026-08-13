@@ -69,7 +69,7 @@ export default function Wishlist() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f7fc] pt-28 px-4 md:px-8 lg:px-12 pb-12">
+    <div className="min-h-screen bg-[#f4f7fc] pt-12 md:pt-28 px-4 md:px-8 lg:px-12 pb-12">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">

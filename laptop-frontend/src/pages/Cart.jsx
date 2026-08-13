@@ -9,7 +9,7 @@ import { showToast } from "../utils/toast";
 
 // ─── Helper Component: Loading Spinner ──────────────────────────────────────
 const LoadingSpinner = () => (
-  <div className="min-h-screen bg-[#f4f7fc] pt-28 pb-12 px-4 flex items-center justify-center">
+  <div className="min-h-screen bg-[#f4f7fc] pt-12 md:pt-28 pb-12 px-4 flex items-center justify-center">
     <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#3271D7]/20 border-t-[#3271D7]" />
   </div>
 );
@@ -258,7 +258,7 @@ export default function Cart() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="min-h-screen bg-[#f4f7fc] pt-20 md:pt-28 pb-12 px-4 md:px-8 lg:px-12">
+    <div className="min-h-screen bg-[#f4f7fc] pt-12 md:pt-28 pb-12 px-4 md:px-8 lg:px-12">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-2xl md:text-3xl font-extrabold uppercase tracking-tight text-gray-900 flex items-center gap-3">
           <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#3271D7] text-white">

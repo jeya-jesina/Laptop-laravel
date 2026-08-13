@@ -76,7 +76,7 @@ export default function CrazyRefurbished() {
 
   return (
     <section className="w-full bg-white py-3 md:py-8">
-      <div className="max-w-[93%] mx-auto px-6 md:px-8 lg:px-10">
+      <div className="max-w-[97%] mx-auto px-3 md:px-8 lg:px-10">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
@@ -91,21 +91,24 @@ export default function CrazyRefurbished() {
           </button>
         </div>
 
-        {/* Filter pills */}
-        <div className="flex flex-wrap gap-2 md:gap-3 mb-3 md:mb-6">
-          {filters.map((f) => (
-            <button
-              key={f.label}
-              onClick={() => navigate("/offers")}
-              className="flex flex-col items-start rounded-md border px-4 py-2 min-w-[150px] text-left transition-colors border-gray-200 hover:border-gray-300"
-            >
-              <span className="text-xs font-semibold text-gray-900">
-                {f.label}
-              </span>
-              <span className="text-[11px] text-gray-500">{f.sub}</span>
-            </button>
-          ))}
-        </div>
+    {/* Filter pills */}
+<div className="grid grid-cols-2 md:flex md:flex-wrap gap-2 md:gap-3 mb-3 md:mb-6">
+  {filters.map((f) => (
+    <button
+      key={f.label}
+      onClick={() => navigate("/offers")}
+      className="w-full md:w-auto flex flex-col items-start rounded-md border px-3 md:px-4 py-2 min-w-0 md:min-w-[150px] text-left transition-colors border-gray-200 hover:border-gray-300"
+    >
+      <span className="text-xs font-semibold text-gray-900">
+        {f.label}
+      </span>
+
+      <span className="text-[11px] text-gray-500">
+        {f.sub}
+      </span>
+    </button>
+  ))}
+</div>
 
         {/* Product grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4">

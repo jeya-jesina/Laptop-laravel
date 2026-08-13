@@ -348,7 +348,7 @@ export default function Product() {
         (filters.price_min > 0 ? 1 : 0);
 
     return (
-        <div className="min-h-screen bg-[#f8f7f2] pt-12 md:pt-24 pb-16 px-4 md:px-8 lg:px-12">
+        <div className="min-h-screen bg-[#f8f7f2] pt-6 md:pt-24 pb-8 md:pb-16 px-4 md:px-8 lg:px-12">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="mb-6">
