@@ -4,6 +4,7 @@ import api from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import { useStore } from "../contexts/StoreContext";
 import { formatCurrency } from "../utils/formatters";
+import CheckoutStepper from "../components/CheckoutStepper";
 import {
   CreditCard,
   Wallet,
@@ -18,6 +19,7 @@ import {
   ShoppingBag,
   Lock,
   ShieldCheck,
+  Smartphone,
 } from "lucide-react";
 
 const inputClass =
@@ -34,11 +36,9 @@ export default function Payment() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  // Get order data from navigation state
   const orderData = location.state || {};
   const isFromCart = orderData.fromCart || false;
 
-  // Payment form state
   const [form, setForm] = useState({
     mobile: orderData.mobile || "",
     shipping_address: orderData.shipping_address || "",
@@ -50,13 +50,11 @@ export default function Payment() {
   });
 
   useEffect(() => {
-    // Redirect if no order data
     if (!orderData || !orderData.items || orderData.items.length === 0) {
       navigate("/cart");
       return;
     }
 
-    // Pre-fill user data if available
     if (user) {
       setForm((prev) => ({
         ...prev,
@@ -66,7 +64,6 @@ export default function Payment() {
     }
   }, [user, orderData, navigate]);
 
-  // Calculate totals
   const subtotal = orderData.subtotal || 0;
   const items = orderData.items || [];
   const gstTotal = useMemo(() => {
@@ -89,7 +86,6 @@ export default function Payment() {
   };
 
   const validateForm = () => {
-    // Validate mobile number
     const phoneClean = form.mobile.replace(/[^0-9]/g, "");
     if (!form.mobile || phoneClean.length !== 10) {
       setError("Please enter a valid 10-digit mobile number");
@@ -131,7 +127,6 @@ export default function Payment() {
       return;
     }
 
-    // Calculate paid amount and status
     let paidAmount = 0;
     let paymentStatus = "pending";
     let balanceAmount = totalWithGst;
@@ -151,7 +146,6 @@ export default function Payment() {
       }
     }
 
-    // Record payment for the order already created at checkout
     const payload = {
       user_id: user?.id || 0,
       order_id: orderData.order_id || 0,
@@ -159,22 +153,17 @@ export default function Payment() {
       payment_method: form.payment_method,
     };
 
-    console.log("Payment payload:", payload);
-
     try {
       const orderId = orderData.order_id || 0;
       const response = await api.post(`/shop/payment/${orderId}`, payload);
-      console.log("Payment response:", response.data);
 
       if (response.data?.success || response.data?.status) {
         setSuccess(true);
 
-        // Clear cart if coming from cart
         if (isFromCart) {
           await clearCart();
         }
 
-        // Navigate to payment success after delay
         setTimeout(() => {
           navigate("/payment-success", {
             state: {
@@ -209,25 +198,23 @@ export default function Payment() {
     }
   };
 
-  // Payment method options
   const paymentMethods = [
-    { value: "cash", label: "Cash", icon: Wallet },
-    { value: "online", label: "Online", icon: CreditCard },
-    { value: "upi", label: "UPI", icon: QrCode },
-    { value: "credit", label: "Credit", icon: Building2 },
+    { value: "cash", label: "Cash", icon: Wallet, desc: "Pay at delivery" },
+    { value: "online", label: "Online", icon: CreditCard, desc: "Card / Net banking" },
+    { value: "upi", label: "UPI", icon: Smartphone, desc: "GPay, PhonePe" },
+    { value: "credit", label: "Credit", icon: Building2, desc: "Pay later" },
   ];
 
-  // If no order data, show error
   if (!orderData || !orderData.items || orderData.items.length === 0) {
     return (
-      <div className="min-h-screen bg-[#f4f7fc] pt-28 px-4 md:px-8 lg:px-12 flex items-center justify-center">
-        <div className="text-center bg-white rounded-2xl shadow-sm border border-gray-100 p-12 max-w-md">
+      <div className="min-h-screen bg-gradient-to-b from-[#eef3fb] to-white pt-28 px-4 md:px-8 lg:px-12 flex items-center justify-center">
+        <div className="text-center bg-white rounded-3xl shadow-lg border border-gray-100 p-12 max-w-md">
           <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-800">No Order Found</h2>
           <p className="text-gray-500 mt-2">Please add items to your cart first.</p>
           <button
             onClick={() => navigate("/")}
-            className="mt-4 px-6 py-2.5 bg-[#3271D7] text-white rounded-full hover:bg-[#265bb5] transition"
+            className="mt-4 px-6 py-2.5 bg-[#3271D7] text-white rounded-xl hover:bg-[#265bb5] transition"
           >
             Go Shopping
           </button>
@@ -237,21 +224,18 @@ export default function Payment() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f4f7fc] pt-28 px-4 md:px-8 lg:px-12 pb-12">
+    <div className="min-h-screen bg-gradient-to-b from-[#eef3fb] via-[#f6f8fc] to-white pt-28 px-4 md:px-8 lg:px-12 pb-16">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-extrabold uppercase tracking-tight text-gray-900 flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#3271D7] text-white">
-              <Wallet size={22} />
-            </span>
+        <div className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">
             Payment Details
           </h1>
           <p className="mt-2 text-sm text-gray-500">Choose your payment method and confirm your order</p>
+          <CheckoutStepper current={3} />
         </div>
 
         <div className="grid lg:grid-cols-[1.5fr_1fr] gap-8 items-start">
-          {/* Payment Form */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-8">
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 md:p-8">
             {error && (
               <div className="mb-5 p-4 bg-red-50 text-red-700 rounded-xl text-sm border border-red-200 flex items-start gap-3">
                 <AlertCircle size={20} className="flex-shrink-0 mt-0.5" />
@@ -270,13 +254,13 @@ export default function Payment() {
               {/* Customer Details */}
               <div>
                 <h3 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-[#3271D7]">
-                    <User size={16} />
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#3271D7] text-white">
+                    <User size={17} />
                   </span>
                   Customer Details
                 </h3>
                 <div className="space-y-4">
-                  <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-4">
+                  <div className="rounded-2xl border border-blue-100 bg-blue-50/50 p-4">
                     <div className="text-xs text-gray-500 uppercase tracking-wide">Order for</div>
                     <div className="mt-1 font-bold text-gray-900 text-lg">
                       {orderData.customer_name || user?.name}
@@ -284,6 +268,10 @@ export default function Payment() {
                     <div className="text-sm text-gray-500 flex items-center gap-1.5 mt-1">
                       <Mail size={14} className="text-[#3271D7]" />
                       {orderData.email || user?.email}
+                    </div>
+                    <div className="text-sm text-gray-500 flex items-center gap-1.5 mt-1">
+                      <MapPin size={14} className="text-[#3271D7]" />
+                      {form.shipping_address}
                     </div>
                   </div>
                   <div>
@@ -300,28 +288,14 @@ export default function Payment() {
                       placeholder="Enter 10-digit mobile number"
                     />
                   </div>
-                  <div>
-                    <label className={labelClass}>
-                      <MapPin size={14} className="inline mr-1 text-[#3271D7]" /> Shipping Address *
-                    </label>
-                    <textarea
-                      name="shipping_address"
-                      value={form.shipping_address}
-                      onChange={handleChange}
-                      disabled={submitting || success}
-                      rows={3}
-                      className={`${inputClass} resize-none`}
-                      placeholder="Enter shipping address"
-                    />
-                  </div>
                 </div>
               </div>
 
               {/* Payment Method */}
               <div className="border-t border-gray-100 pt-6">
                 <h3 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-[#3271D7]">
-                    <CreditCard size={16} />
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#3271D7] text-white">
+                    <CreditCard size={17} />
                   </span>
                   Payment Method
                 </h3>
@@ -330,7 +304,13 @@ export default function Payment() {
                     <button
                       key={method.value}
                       type="button"
-                      onClick={() => setForm((prev) => ({ ...prev, payment_method: method.value }))}
+                      onClick={() => {
+                        setForm((prev) => ({
+                          ...prev,
+                          payment_method: method.value,
+                          payment_type: method.value === "credit" ? "credit" : "cash",
+                        }));
+                      }}
                       disabled={submitting || success}
                       className={`p-4 rounded-2xl border-2 text-center transition-all duration-200 ${
                         form.payment_method === method.value
@@ -344,12 +324,13 @@ export default function Payment() {
                         }`}
                       />
                       <span
-                        className={`text-xs font-semibold ${
+                        className={`block text-xs font-semibold ${
                           form.payment_method === method.value ? "text-[#3271D7]" : "text-gray-600"
                         }`}
                       >
                         {method.label}
                       </span>
+                      <span className="block text-[10px] text-gray-400 mt-0.5">{method.desc}</span>
                     </button>
                   ))}
                 </div>
@@ -359,7 +340,7 @@ export default function Payment() {
               <button
                 type="submit"
                 disabled={submitting || success}
-                className="w-full bg-[#3271D7] text-white py-4 rounded-xl hover:bg-[#265bb5] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg font-bold shadow-lg shadow-blue-200"
+                className="w-full bg-gradient-to-r from-[#3271D7] to-[#4f8ef5] text-white py-4 rounded-2xl hover:from-[#265bb5] hover:to-[#3d7ae0] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg font-bold shadow-xl shadow-blue-200"
               >
                 {submitting ? (
                   <>
@@ -384,8 +365,9 @@ export default function Payment() {
           </div>
 
           {/* Order Summary */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden h-fit sticky top-28">
-            <div className="bg-gradient-to-r from-[#3271D7] to-[#4f8ef5] px-6 py-5">
+          <div className="rounded-3xl bg-white border border-gray-100 shadow-sm overflow-hidden h-fit sticky top-28">
+            <div className="bg-gradient-to-r from-[#1a1f36] via-[#2a2f4a] to-[#3271D7] px-6 py-5 relative overflow-hidden">
+              <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/5"></div>
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
                 <ShoppingBag size={20} /> Order Summary
               </h2>
@@ -401,9 +383,13 @@ export default function Payment() {
                   <span className="text-gray-600">GST</span>
                   <span className="font-semibold text-gray-900">{formatCurrency(gstTotal)}</span>
                 </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Shipping</span>
+                  <span className="font-semibold text-green-600">Free</span>
+                </div>
                 <div className="border-t border-dashed border-gray-200 pt-3 flex justify-between font-bold text-lg">
                   <span className="text-gray-900">Total</span>
-                  <span className="text-[#3271D7]">{formatCurrency(totalWithGst)}</span>
+                  <span className="text-[#3271D7] text-2xl">{formatCurrency(totalWithGst)}</span>
                 </div>
               </div>
 

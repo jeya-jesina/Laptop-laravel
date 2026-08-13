@@ -12,6 +12,7 @@ use App\Models\OrderItem;
 use App\Models\Invoice;
 use App\Models\Company;
 use App\Models\Payment;
+use App\Models\UserAddress;
 use Illuminate\Support\Facades\DB;
 
 class ShopController extends Controller
@@ -555,6 +556,47 @@ class ShopController extends Controller
             return response()->json(["success" => false, "message" => "Customer name and mobile required"]);
         }
 
+        // Optionally save the entered address as a new saved address for the user
+        $address_id = intval($request->input('address_id', 0));
+        $save_address = intval($request->input('save_address', 0)) == 1;
+
+        if ($user_id > 0 && $save_address && $shipping_address) {
+            $exists = UserAddress::where('user_id', $user_id)
+                ->where('address', $shipping_address)
+                ->first();
+            if (!$exists) {
+                $isFirst = UserAddress::where('user_id', $user_id)->count() === 0;
+                $newAddress = UserAddress::create([
+                    'user_id' => $user_id,
+                    'label' => trim($request->input('address_label', '')) ?: 'Home',
+                    'name' => $customer_name,
+                    'phone' => $mobile,
+                    'email' => $email,
+                    'address' => $shipping_address,
+                    'city' => trim($request->input('city', '')),
+                    'state' => trim($request->input('state', '')),
+                    'pincode' => trim($request->input('pincode', '')),
+                    'country' => trim($request->input('country', 'India')),
+                    'is_default' => $isFirst ? 1 : 0,
+                ]);
+                $address_id = $newAddress->id;
+            } else {
+                $address_id = $exists->id;
+            }
+        } elseif ($address_id > 0 && $user_id > 0) {
+            $saved = UserAddress::where('id', $address_id)->where('user_id', $user_id)->first();
+            if ($saved) {
+                $shipping_address = $saved->address;
+                $billing_address  = $saved->address;
+                if (!$customer_name && $saved->name) {
+                    $customer_name = $saved->name;
+                }
+                if (!$mobile && $saved->phone) {
+                    $mobile = $saved->phone;
+                }
+            }
+        }
+
         // Resolve to a real active company (fallback to first active company
         // so invoices always land under a company visible in the reports).
         $company_id = intval($request->input('company_id', 0));
@@ -608,6 +650,7 @@ class ShopController extends Controller
                 'order_no' => $order_no,
                 'invoice_no' => $invoice_no,
                 'user_id' => $user_id > 0 ? $user_id : null,
+                'address_id' => $address_id > 0 ? $address_id : null,
                 'customer_name' => $customer_name,
                 'mobile' => $mobile,
                 'email' => $email ?: null,
