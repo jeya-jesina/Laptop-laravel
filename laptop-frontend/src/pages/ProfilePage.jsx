@@ -136,25 +136,20 @@ function ProfilePage() {
 
   if (!user) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')",
-        }}
-      >
-        <div className="absolute inset-0 bg-black/50"></div>
-        <div className="relative text-center bg-white/90 backdrop-blur-sm p-12 rounded-2xl shadow-2xl max-w-md">
-          <User size={64} className="mx-auto text-[#a97c50] mb-4" />
-          <h2 className="text-2xl font-serif font-bold text-[#181818]">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#3271D7] to-[#0f3d91] px-4">
+        <div className="relative text-center bg-white rounded-2xl shadow-2xl p-10 max-w-md w-full">
+          <div className="w-20 h-20 mx-auto rounded-2xl bg-[#eef4ff] flex items-center justify-center mb-4">
+            <User size={40} className="text-[#3271D7]" />
+          </div>
+          <h2 className="text-2xl font-bold text-[#181818]">
             Welcome Back
           </h2>
-          <p className="text-gray-600 mt-2">
+          <p className="text-gray-500 mt-2">
             Please login to view your profile
           </p>
           <Link
             to="/login"
-            className="mt-6 inline-block px-8 py-3 bg-[#a97c50] text-white rounded-md hover:bg-[#8a6540] transition"
+            className="mt-6 inline-block w-full px-8 py-3 bg-[#3271D7] text-white rounded-xl hover:bg-[#265bb5] transition font-medium"
           >
             Login Now
           </Link>
@@ -164,19 +159,10 @@ function ProfilePage() {
   }
 
   return (
-    <div
-      className="min-h-screen bg-cover bg-center bg-fixed"
-      style={{
-        backgroundImage:
-          "url('https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')",
-      }}
-    >
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/40"></div>
-
-      <div className="relative max-w-5xl mx-auto px-4 py-8 mt-20">
+    <div className="min-h-screen bg-[#f8f7f2]">
+      <div className="max-w-5xl mx-auto px-4 py-8 pt-28 md:pt-32">
         {/* Header Section with Gradient */}
-        <div className="bg-gradient-to-r from-[#a97c50] to-[#8a6540] rounded-2xl p-8 mb-8 shadow-xl relative overflow-hidden">
+        <div className="bg-gradient-to-r from-[#3271D7] to-[#0f3d91] rounded-2xl p-6 md:p-8 mb-8 shadow-xl relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2"></div>
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full translate-y-1/2 -translate-x-1/2"></div>
@@ -184,19 +170,19 @@ function ProfilePage() {
 
           <div className="relative flex flex-col md:flex-row items-center gap-6">
             <div className="relative">
-              <div className="w-28 h-28 rounded-full bg-white/20 backdrop-blur-sm border-4 border-white/50 flex items-center justify-center">
-                <span className="text-4xl font-serif text-white font-bold">
+              <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-white/20 backdrop-blur-sm border-4 border-white/50 flex items-center justify-center">
+                <span className="text-3xl md:text-4xl text-white font-bold">
                   {user.name?.charAt(0).toUpperCase() || "U"}
                 </span>
               </div>
             </div>
 
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-3xl font-serif font-bold text-white">
+              <h1 className="text-2xl md:text-3xl font-bold text-white">
                 {user.name}
               </h1>
               <p className="text-white/80">{user.email}</p>
-              <div className="flex flex-wrap gap-4 mt-3 justify-center md:justify-start">
+              <div className="flex flex-wrap gap-2 mt-3 justify-center md:justify-start">
                 <span className="flex items-center gap-1 text-white/90 text-sm bg-white/10 px-3 py-1 rounded-full">
                   <Heart size={14} className="text-pink-300" /> Member
                 </span>
@@ -206,7 +192,7 @@ function ProfilePage() {
               </div>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-wrap justify-center gap-3">
               <Link
                 to="/orders"
                 className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 transition text-sm font-medium"
@@ -224,7 +210,7 @@ function ProfilePage() {
         </div>
 
         {/* Profile Form */}
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-8 border border-white/20">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
           {message.text && (
             <div
               className={`mb-6 p-4 rounded-xl flex items-start gap-3 ${
@@ -243,13 +229,13 @@ function ProfilePage() {
           )}
 
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-serif font-bold text-[#181818]">
+            <h2 className="text-xl font-bold text-[#181818]">
               Profile Information
             </h2>
             {!isEditing && (
               <button
                 onClick={() => setIsEditing(true)}
-                className="px-6 py-2 text-sm text-[#a97c50] border-2 border-[#a97c50] rounded-lg hover:bg-[#a97c50] hover:text-white transition font-medium"
+                className="px-6 py-2 text-sm text-[#3271D7] border-2 border-[#3271D7] rounded-lg hover:bg-[#3271D7] hover:text-white transition font-medium"
               >
                 Edit Profile
               </button>
@@ -270,7 +256,7 @@ function ProfilePage() {
                   onChange={handleChange}
                   required
                   disabled={!isEditing}
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#a97c50] focus:border-transparent transition ${
+                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#3271D7] focus:border-transparent transition ${
                     isEditing
                       ? "border-gray-300 bg-white"
                       : "border-gray-200 bg-gray-50 text-gray-600 cursor-not-allowed"
@@ -307,7 +293,7 @@ function ProfilePage() {
                 value={formData.phone}
                 onChange={handleChange}
                 disabled={!isEditing}
-                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#a97c50] focus:border-transparent transition ${
+                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#3271D7] focus:border-transparent transition ${
                   isEditing
                     ? "border-gray-300 bg-white"
                     : "border-gray-200 bg-gray-50 text-gray-600 cursor-not-allowed"
@@ -332,7 +318,7 @@ function ProfilePage() {
                 onChange={handleChange}
                 rows={3}
                 disabled={!isEditing}
-                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#a97c50] focus:border-transparent transition ${
+                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#3271D7] focus:border-transparent transition ${
                   isEditing
                     ? "border-gray-300 bg-white"
                     : "border-gray-200 bg-gray-50 text-gray-600 cursor-not-allowed"
@@ -346,7 +332,7 @@ function ProfilePage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex items-center justify-center gap-2 bg-[#a97c50] text-white px-8 py-3 rounded-xl hover:bg-[#8a6540] transition disabled:opacity-50 font-medium"
+                  className="flex items-center justify-center gap-2 bg-[#3271D7] text-white px-8 py-3 rounded-xl hover:bg-[#265bb5] transition disabled:opacity-50 font-medium"
                 >
                   <Save size={18} />
                   {loading ? "Updating..." : "Update Profile"}
@@ -403,7 +389,7 @@ function ProfilePage() {
                 setShowChangePassword(!showChangePassword);
                 setPasswordMessage({ type: "", text: "" });
               }}
-              className="flex items-center gap-2 text-[#a97c50] hover:text-[#8a6540] font-medium transition"
+              className="flex items-center gap-2 text-[#3271D7] hover:text-[#265bb5] font-medium transition"
             >
               <Lock size={18} />
               {showChangePassword ? "Cancel" : "Change Password"}
@@ -440,7 +426,7 @@ function ProfilePage() {
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a97c50] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3271D7] focus:border-transparent"
                     placeholder="Enter your current password"
                   />
                 </div>
@@ -453,7 +439,7 @@ function ProfilePage() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a97c50] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3271D7] focus:border-transparent"
                     placeholder="Enter new password (min 6 characters)"
                   />
                 </div>
@@ -466,14 +452,14 @@ function ProfilePage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a97c50] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3271D7] focus:border-transparent"
                     placeholder="Re-enter new password"
                   />
                 </div>
                 <div className="text-right mt-2">
                   <Link
                     to="/forgot-password"
-                    className="text-sm text-[#a97c50] hover:underline"
+                    className="text-sm text-[#3271D7] hover:underline"
                   >
                     Forgot your password?
                   </Link>
@@ -481,7 +467,7 @@ function ProfilePage() {
                 <button
                   type="submit"
                   disabled={passwordLoading}
-                  className="w-full bg-[#a97c50] text-white py-2 rounded-lg hover:bg-[#8a6540] transition disabled:opacity-50 font-medium"
+                  className="w-full bg-[#3271D7] text-white py-2 rounded-lg hover:bg-[#265bb5] transition disabled:opacity-50 font-medium"
                 >
                   {passwordLoading ? "Updating..." : "Update Password"}
                 </button>
@@ -491,8 +477,8 @@ function ProfilePage() {
         </div>
 
         {/* Decorative Footer */}
-        <div className="mt-8 text-center text-white/60 text-sm">
-          <p>✨ Second Laptop Store - Premium Technology ✨</p>
+        <div className="mt-8 text-center text-gray-400 text-sm">
+          <p>REnewLAP - Certified Renewed Laptops, Best Prices</p>
         </div>
       </div>
     </div>

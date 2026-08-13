@@ -18,7 +18,7 @@ function CountdownTimer({ endAt }) {
   const pad = (n) => String(n).padStart(2, "0");
 
   return (
-    <div className="text-white font-black text-[28px] tracking-widest leading-none sm:pr-2">
+    <div className="text-white font-black text-xl sm:text-[28px] tracking-widest leading-none sm:pr-2">
       {pad(h)}H : {pad(m)}M : {pad(s)}S
     </div>
   );
@@ -59,10 +59,11 @@ const Deals = () => {
         {/* TOP BAR: GRADIENT HEADER SECTION */}
         <div className="bg-gradient-to-r from-[#f7cbb1] to-[#ff7a7a] px-8 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="text-center sm:text-left">
-            <h2 className="text-xl sm:text-[26px] font-black text-[#1c1c1c] tracking-tight leading-tight">
-              DEAL OF THE DAY
+            <h2 className="text-lg sm:text-[26px] font-black text-[#1c1c1c] tracking-tight leading-tight">
+              <span className="block sm:inline">DEAL OF</span>{" "}
+              <span className="block sm:inline">THE DAY</span>
             </h2>
-            <p className="text-[12px] text-[#2c2c2c] font-medium mt-0.5">
+            <p className="text-[11px] sm:text-[12px] text-[#2c2c2c] font-medium mt-0.5">
               Handpicked daily — the deepest discount and biggest savings on a flagship pick.
             </p>
           </div>
@@ -98,7 +99,7 @@ const Deals = () => {
             )}
 
             {deal.title && (
-              <h3 className="text-[22px] lg:text-[25px] font-black text-[#1a1a1a] leading-[1.25] tracking-tight">
+              <h3 className="text-base md:text-[22px] lg:text-[25px] font-black text-[#1a1a1a] leading-[1.25] tracking-tight">
                 {deal.title}
               </h3>
             )}
@@ -112,10 +113,10 @@ const Deals = () => {
 
             {mrp > 0 && (
               <div className="mt-5 flex items-baseline gap-3">
-                <span className="text-[28px] font-black text-[#1c1c1c] tracking-tight">
+                <span className="text-xl md:text-[28px] font-black text-[#1c1c1c] tracking-tight">
                   {formatINR(price)}
                 </span>
-                <span className="text-[16px] text-[#ababab] line-through font-semibold">
+                <span className="text-sm md:text-[16px] text-[#ababab] line-through font-semibold">
                   {formatINR(mrp)}
                 </span>
               </div>

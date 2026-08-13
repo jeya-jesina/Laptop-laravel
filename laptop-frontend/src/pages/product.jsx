@@ -348,12 +348,12 @@ export default function Product() {
         (filters.price_min > 0 ? 1 : 0);
 
     return (
-        <div className="min-h-screen bg-[#f8f7f2] pt-28 pb-16 px-4 md:px-8 lg:px-12">
+        <div className="min-h-screen bg-[#f8f7f2] pt-12 md:pt-24 pb-16 px-4 md:px-8 lg:px-12">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-6">
-                    <div>
-                        <h1 className="text-2xl font-semibold text-gray-900">
+                <div className="mb-6">
+                    <div className="text-center">
+                        <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">
                             {offerId ? "Home Offers" : (brandName || budgetName || professionName || categoryName || "Products")}
                         </h1>
                         <p className="text-sm text-gray-500 mt-1">
@@ -361,7 +361,7 @@ export default function Product() {
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="mt-4 flex flex-wrap items-center justify-center md:justify-end gap-3">
                         {/* Sort */}
                         <select
                             value={filters.sort_by}
@@ -406,9 +406,9 @@ export default function Product() {
                     {/* Product Grid */}
                     <div className="flex-1">
                         {loading ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {Array.from({ length: 6 }).map((_, index) => (
-                                    <div key={index} className="h-96 rounded-xl bg-white animate-pulse" />
+                            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+                                {Array.from({ length: 8 }).map((_, index) => (
+                                    <div key={index} className="h-72 rounded-xl bg-white animate-pulse" />
                                 ))}
                             </div>
                         ) : products.length === 0 ? (
@@ -426,7 +426,7 @@ export default function Product() {
                                 </button>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
                                 {products.map((product) => (
                                     <ProductCard
                                         key={product.id}

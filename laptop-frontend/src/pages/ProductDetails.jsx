@@ -323,7 +323,7 @@ export default function ProductDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8f7f2] pt-28 pb-16 px-4 md:px-8 lg:px-12">
+    <div className="min-h-screen bg-[#f8f7f2] pt-12 md:pt-24 pb-16 px-4 md:px-8 lg:px-12">
       {/* Fullscreen Modal */}
       {isFullscreen && (
         <div 
@@ -397,7 +397,7 @@ export default function ProductDetails() {
                 autoPlay
                 muted
                 loop
-                className="w-full h-[520px] object-contain"
+                className="w-full h-[280px] sm:h-[520px] object-contain"
                 onClick={(e) => e.stopPropagation()}
               >
                 <source src={currentMedia.url} type="video/mp4" />
@@ -407,7 +407,7 @@ export default function ProductDetails() {
               <img
                 src={currentMedia?.url || productImages[0]}
                 alt={product.product_name}
-                className="w-full h-[520px] object-contain mix-blend-multiply scale-[1.05]"
+                className="w-full h-[280px] sm:h-[520px] object-contain mix-blend-multiply scale-[1.05]"
               />
             )}
 

@@ -4,7 +4,7 @@ import { useStore } from "../contexts/StoreContext";
 import { useAuth } from "../contexts/AuthContext";
 import api, { resolveMediaUrl, getActiveCompanyId } from "../services/api";
 
-const FilterDropdown = ({ label, items, onSelect, renderItem, emptyText }) => {
+export const FilterDropdown = ({ label, items, onSelect, renderItem, emptyText }) => {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const ref = useRef(null);
@@ -123,7 +123,7 @@ const FilterDropdown = ({ label, items, onSelect, renderItem, emptyText }) => {
   );
 };
 
-const SuggestionsPanel = ({ suggestions, go, query }) => {
+export const SuggestionsPanel = ({ suggestions, go, query }) => {
   const products = suggestions?.products || [];
   const brands = suggestions?.brands || [];
   const budgets = suggestions?.budgets || [];
@@ -235,7 +235,7 @@ const SuggestionsPanel = ({ suggestions, go, query }) => {
   );
 };
 
-const SearchBox = ({
+export const SearchBox = ({
   innerRef,
   query,
   setQuery,
@@ -416,7 +416,7 @@ const Header = () => {
           type="button"
           aria-label="Toggle menu"
           onClick={() => setMobileMenuOpen((v) => !v)}
-          className="xl:hidden text-white p-1.5 -ml-1 hover:opacity-80 transition"
+          className="lg:hidden text-white p-1.5 -ml-1 hover:opacity-80 transition"
         >
           {mobileMenuOpen ? (
             <svg
@@ -451,7 +451,7 @@ const Header = () => {
         </Link>
 
         {/* Center (desktop only) */}
-        <div className="hidden xl:flex items-center gap-6 flex-1 justify-center">
+        <div className="hidden lg:flex items-center gap-6 flex-1 justify-center">
           <FilterDropdown
             label="By Brand"
             items={menu.brands}
@@ -598,7 +598,7 @@ const Header = () => {
       </div>
 
       {/* Mobile Search (below 1280px) */}
-      <div className="xl:hidden px-4 sm:px-6 lg:px-8 pb-3">
+      <div className="lg:hidden px-4 sm:px-6 lg:px-8 pb-3">
         <SearchBox
           innerRef={mobileSearchRef}
           query={searchQuery}
@@ -614,7 +614,7 @@ const Header = () => {
 
       {/* Mobile Menu (below 1280px) */}
       {mobileMenuOpen && (
-        <div className="xl:hidden bg-[#3271D7] px-4 sm:px-6 lg:px-8 pb-4 space-y-2">
+        <div className="lg:hidden bg-[#3271D7] px-4 sm:px-6 lg:px-8 pb-4 space-y-2">
           <FilterDropdown
             label="By Brand"
             items={menu.brands}

@@ -54,11 +54,11 @@ const Enquire = () => {
     <section className="w-full bg-white py-5 md:py-16">
       <div className="w-[92%] max-w-[1450px] mx-auto">
 
-        {/* Heading */}
-        <h2 className="text-xl sm:text-2xl md:text-[38px] font-extrabold uppercase text-black mb-4 md:mb-8 tracking-tight">
-          <span className="block md:inline">WHAT OUR</span>{" "}
-          <span className="block md:inline">CUSTOMERS SAYS</span>
-        </h2>
+{/* Heading */}
+<h2 className="text-2xl sm:text-3xl md:text-[28px] font-extrabold uppercase text-black mb-4 md:mb-8 tracking-tight">
+  <span className="block md:inline">WHAT OUR</span>{" "}
+  <span className="block md:inline">CUSTOMERS SAYS</span>
+</h2>
 
         {/* Cards - Auto Scroll */}
         <div className="relative overflow-hidden">

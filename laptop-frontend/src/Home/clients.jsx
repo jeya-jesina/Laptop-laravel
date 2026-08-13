@@ -42,11 +42,11 @@ const Clients = () => {
       <div className="max-w-7xl mx-auto px-6">
 
         {/* Heading */}
-        <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-gray-900 mb-6">
-          <span className="block md:inline">OUR VALUABLE</span>{" "}
-          <span className="block md:inline">CLIENTS</span>
-        </h2>
-
+        
+<h2 className="text-2xl sm:text-3xl md:text-[28px] font-extrabold uppercase text-black mb-4 md:mb-10 tracking-tight">
+  <span className="block md:inline">OUR VALUABLE</span>{" "}
+  <span className="block md:inline">CLIENTS</span>
+</h2>
         {/* Auto Scroll */}
         <div className="relative overflow-hidden">
 
