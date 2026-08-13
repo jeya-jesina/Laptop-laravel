@@ -39,13 +39,6 @@ export default function LaptopDeals() {
   if (loading) return null;
   if (banners.length === 0) return null;
 
-  const getDealTarget = (banner) => {
-    if (banner.category_id) {
-      return `/bridal-lehenga?category_id=${encodeURIComponent(banner.category_id)}`;
-    }
-    return banner.link_url || "";
-  };
-
   return (
     <div
       className="w-full px-3 py-4 sm:p-6 md:min-h-screen md:flex md:items-center md:justify-center"
@@ -54,15 +47,12 @@ export default function LaptopDeals() {
       <div className="w-full max-w-6xl">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
           {banners.map((banner) => {
-            const target = getDealTarget(banner);
             return (
             <div
               key={banner.id}
-              onClick={() => target && navigate(target)}
+              onClick={() => navigate("/offers")}
               style={{ backgroundColor: banner.bg_color || "#B2EDD5" }}
-              className={`p-3 md:p-8 flex flex-col justify-between min-h-[230px] md:min-h-[420px] hover:shadow-lg transition-shadow duration-300 ${
-                target ? "cursor-pointer" : ""
-              }`}
+              className="p-3 md:p-8 flex flex-col justify-between min-h-[230px] md:min-h-[420px] hover:shadow-lg transition-shadow duration-300 cursor-pointer"
             >
               <div>
                 <h3
@@ -88,10 +78,10 @@ export default function LaptopDeals() {
                 )}
 
                 <a
-                  href={target || "#"}
+                  href="/offers"
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (target) navigate(target);
+                    navigate("/offers");
                   }}
                   className="inline-block text-[11px] md:text-sm font-medium text-[#3271D7] underline underline-offset-2 mt-1 md:mt-2 hover:opacity-80"
                   style={{ fontFamily: "Poppins, sans-serif" }}
