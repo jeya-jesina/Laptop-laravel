@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, ArrowRight, Trash2, Plus, Minus, PackageOpen } from "lucide-react";
-import api, { resolveMediaUrl } from "../services/api";
+import api, { resolveMediaUrl, FALLBACK_IMAGE } from "../services/api";
 import { formatCurrency } from "../utils/formatters";
 import { useStore } from "../contexts/StoreContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -35,7 +35,7 @@ const EmptyCart = () => (
 const CartItem = ({ item, onUpdate, onRemove }) => {
   const imageSrc =
     resolveMediaUrl(item.image) ||
-    "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0";
+    FALLBACK_IMAGE;
 
   return (
     <div className="flex flex-col md:flex-row items-start md:items-center justify-between rounded-2xl bg-white p-4 md:p-5 border border-gray-100 shadow-sm hover:shadow-lg hover:border-blue-100 transition-all duration-300">
@@ -184,6 +184,21 @@ export default function Cart() {
   // ─── API: Update quantity ──────────────────────────────────────────────
   const updateQuantity = async (id, quantity) => {
     if (quantity < 1) return;
+
+    const item = cartItems.find((i) => String(i.id) === String(id));
+    const stock = item ? Number(item.stock) : NaN;
+
+    if (Number.isFinite(stock) && stock <= 0) {
+      showToast("Product is not available in stock", "error");
+      return;
+    }
+    if (Number.isFinite(stock) && quantity > stock) {
+      showToast(
+        `Only ${stock} unit${stock > 1 ? "s" : ""} available in stock`,
+        "error"
+      );
+      return;
+    }
 
     try {
       await api.post(`/shop/cart/${id}`, { user_id: user?.id || 0, quantity });

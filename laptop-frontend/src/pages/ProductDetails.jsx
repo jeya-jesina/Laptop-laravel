@@ -5,7 +5,7 @@ import { formatCurrency, getDiscountPercent } from "../utils/formatters";
 import { useStore } from "../contexts/StoreContext";
 import { useAuth } from "../contexts/AuthContext";
 import { showToast } from "../utils/toast";
-import api, { resolveMediaUrl } from "../services/api";
+import api, { resolveMediaUrl, FALLBACK_IMAGE } from "../services/api";
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -275,7 +275,7 @@ export default function ProductDetails() {
 
   // If no images, use default
   if (productImages.length === 0) {
-    productImages = ["https://images.unsplash.com/photo-1515886657613-9f3515b0c78f"];
+    productImages = [FALLBACK_IMAGE];
   }
 
   // Get video URL

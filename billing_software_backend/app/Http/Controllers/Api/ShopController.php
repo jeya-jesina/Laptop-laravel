@@ -409,7 +409,10 @@ class ShopController extends Controller
 
         $product = Product::find($item->product_id);
         if ($product && $product->stock !== null && $quantity > $product->stock) {
-            $quantity = intval($product->stock);
+            return response()->json([
+                "success" => false,
+                "message" => "Only {$product->stock} unit" . ($product->stock > 1 ? "s" : "") . " available in stock",
+            ]);
         }
 
         $item->update(['quantity' => $quantity]);
@@ -592,6 +595,10 @@ class ShopController extends Controller
             $qty        = intval($item['quantity'] ?? 1);
             $product    = Product::where('id', $product_id)->where('is_deleted', 0)->first();
             if (!$product) {
+                // Deal-of-the-day / custom items (no catalog product row)
+                if (trim($item['product_name'] ?? '')) {
+                    continue;
+                }
                 return response()->json(["success" => false, "message" => "Invalid product in order"]);
             }
             if ($product->stock !== null && floatval($product->stock) < $qty) {
@@ -630,13 +637,17 @@ class ShopController extends Controller
                 $qty        = max(1, intval($item['quantity'] ?? 1));
                 $prc        = floatval($item['price'] ?? 0);
                 $gstP       = floatval($item['gst_percentage'] ?? 0);
-                $product    = Product::find($product_id);
+                $product    = $product_id > 0 ? Product::find($product_id) : null;
+
+                $product_name = $product ? $product->product_name : trim($item['product_name'] ?? '');
+                $product_name = $product_name ?: "Product #{$product_id}";
+                $product_image = $product ? $product->image : trim($item['image'] ?? '');
 
                 OrderItem::create([
                     'order_id' => $order->id,
-                    'product_id' => $product_id,
-                    'product_name' => $product ? $product->product_name : "Product #{$product_id}",
-                    'image' => $product ? $product->image : null,
+                    'product_id' => $product_id ?: null,
+                    'product_name' => $product_name,
+                    'image' => $product_image ?: null,
                     'size' => ($item['size'] ?? '') ?: null,
                     'price' => $prc,
                     'quantity' => $qty,
@@ -645,7 +656,9 @@ class ShopController extends Controller
                     'created_at' => now(),
                 ]);
 
-                Product::where('id', $product_id)->decrement('stock', $qty);
+                if ($product) {
+                    Product::where('id', $product_id)->decrement('stock', $qty);
+                }
             }
 
             // Build invoice products JSON
@@ -655,11 +668,16 @@ class ShopController extends Controller
                 $qty        = max(1, intval($item['quantity'] ?? 1));
                 $prc        = floatval($item['price'] ?? 0);
                 $gstP       = floatval($item['gst_percentage'] ?? 0);
-                $product    = Product::find($product_id);
+                $product    = $product_id > 0 ? Product::find($product_id) : null;
+
+                $invoice_product_name = $product ? $product->product_name : trim($item['product_name'] ?? '');
+                $invoice_product_name = $invoice_product_name ?: "Product #{$product_id}";
+                $invoice_product_image = $product ? $product->image : trim($item['image'] ?? '');
+
                 $invoice_products[] = [
-                    'product_id' => $product_id,
-                    'product_name' => $product ? $product->product_name : "Product #{$product_id}",
-                    'image' => $product ? $product->image : null,
+                    'product_id' => $product_id ?: null,
+                    'product_name' => $invoice_product_name,
+                    'image' => $invoice_product_image ?: null,
                     'size' => ($item['size'] ?? '') ?: null,
                     'price' => $prc,
                     'qty' => $qty,

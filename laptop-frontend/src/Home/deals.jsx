@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api, { resolveMediaUrl, getActiveCompanyId } from "../services/api";
+import { useAuth } from "../contexts/AuthContext";
+import { showToast } from "../utils/toast";
 
 const formatINR = (n) => "₹" + Number(n || 0).toLocaleString("en-IN") + ".00";
 
@@ -26,6 +29,8 @@ function CountdownTimer({ endAt }) {
 
 const Deals = () => {
   const [deal, setDeal] = useState(null);
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
     getActiveCompanyId().then((companyId) => {
@@ -51,6 +56,33 @@ const Deals = () => {
   const discountPct = mrp > 0 ? Math.round((saveAmt / mrp) * 100) : 0;
   const saveText =
     deal.badge || (mrp > 0 ? `SAVE ₹${saveAmt.toLocaleString("en-IN")} (${discountPct}% OFF)` : "");
+
+  const handleBuyNow = () => {
+    if (!user) {
+      showToast("Please log in to continue with Buy Now", "error");
+      setTimeout(() => navigate("/login"), 800);
+      return;
+    }
+
+    navigate("/checkout", {
+      state: {
+        fromProduct: true,
+        product: {
+          product_id: deal.product_id || 0,
+          product_name: deal.title || "Deal of the Day",
+          price: price,
+          quantity: 1,
+          gst_percentage: Number(deal.gst_percentage || 0),
+          size: "",
+          image: deal.image_url || "",
+        },
+        customer_name: user.name || "",
+        email: user.email || "",
+        mobile: user.phone || "",
+        shipping_address: user.address || "",
+      },
+    });
+  };
 
   return (
     <section className="w-full bg-[#f3f3f3] py-12 px-4">
@@ -130,24 +162,12 @@ const Deals = () => {
 
             {/* INTERACTION ACTION BUTTONS ZONE */}
             <div className="mt-8 flex flex-wrap gap-3">
-              <button className="h-[46px] px-8 rounded-full bg-[#2b6be2] text-white font-extrabold text-[13px] hover:bg-[#1f56be] transition shadow-sm tracking-wide">
-                ADD CART
+              <button
+                onClick={handleBuyNow}
+                className="h-[46px] px-8 rounded-full bg-[#2b6be2] text-white font-extrabold text-[13px] hover:bg-[#1f56be] transition shadow-sm tracking-wide"
+              >
+                Buy Now
               </button>
-
-              {deal.link_url ? (
-                <a
-                  href={deal.link_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="h-[46px] px-7 rounded-full border border-[#d2d2d2] text-[#555] font-extrabold text-[13px] bg-[#f8f9fa] hover:bg-[#ececec] transition tracking-wide inline-flex items-center"
-                >
-                  VIEW DETAILS
-                </a>
-              ) : (
-                <button className="h-[46px] px-7 rounded-full border border-[#d2d2d2] text-[#555] font-extrabold text-[13px] bg-[#f8f9fa] hover:bg-[#ececec] transition tracking-wide">
-                  VIEW DETAILS
-                </button>
-              )}
             </div>
           </div>
 

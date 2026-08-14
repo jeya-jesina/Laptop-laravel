@@ -10,7 +10,7 @@ import { formatCurrency } from "../utils/formatters";
 import { useStore } from "../contexts/StoreContext";
 import { useAuth } from "../contexts/AuthContext";
 import { showToast } from "../utils/toast";
-import api, { resolveImageUrl } from "../services/api";
+import api, { resolveImageUrl, FALLBACK_IMAGE } from "../services/api";
 
 export default function Wishlist() {
   const { wishlistItems, refreshCounts } = useStore();
@@ -134,7 +134,7 @@ export default function Wishlist() {
                     <img
                       src={
                         resolveImageUrl(item.image || "") ||
-                        "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0"
+                        FALLBACK_IMAGE
                       }
                       alt={item.product_name}
                       className="w-full h-full object-contain p-4 mix-blend-multiply transition-transform duration-500 group-hover:scale-110"

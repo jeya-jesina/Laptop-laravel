@@ -44,6 +44,7 @@ export default function Checkout() {
           quantity: productData.quantity || 1,
           gst_percentage: productData.gst_percentage || 0,
           size: productData.size || "",
+          image: productData.image || "",
         },
       ];
       const subtotal = productData.price * (productData.quantity || 1);
@@ -136,9 +137,11 @@ export default function Checkout() {
         payment_method: "cash",
         items: items.map((item) => ({
           product_id: item.product_id,
+          product_name: item.product_name,
           quantity: item.quantity,
           price: item.price,
           size: item.size || "",
+          image: item.image || "",
           gst_percentage: item.gst_percentage || 0,
         })),
         subtotal,

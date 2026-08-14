@@ -1,5 +1,6 @@
 // api.js
 import axios from "axios";
+import fallbackImage from "../assets/FALLBACK.png";
 
 // ✅ API host strategy that works BOTH on desktop and mobile without
 // changing the backend:
@@ -22,7 +23,7 @@ const API_PREFIX = getApiPrefix();
 export const API_BASE_URL = `${API_PREFIX}/api/`;
 
 // ✅ Fallback image
-export const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f";
+export const FALLBACK_IMAGE = fallbackImage;
 
 // Axios instance
 const api = axios.create({
