@@ -18,7 +18,6 @@ import {
   AlertCircle,
   ArrowLeft
 } from "lucide-react";
-import html2pdf from "html2pdf.js";
 import { formatCurrency } from "../utils/formatters";
 
 
@@ -62,9 +61,11 @@ export default function InvoicePage() {
     window.print();
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     const element = document.getElementById('invoice-content');
     if (!element) return;
+
+    const { default: html2pdf } = await import("html2pdf.js");
 
     const width = element.scrollWidth;
     const height = element.scrollHeight;

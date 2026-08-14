@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\PurchaseController;
 use App\Http\Controllers\Api\ShopController;
 use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\BannerController;
+use App\Http\Controllers\Api\AddressController;
 
 // ── AUTH ROUTES ──
 Route::prefix('auth')->group(function () {
@@ -58,6 +59,15 @@ Route::prefix('shop')->group(function () {
     Route::post('payment/{id}', [ShopController::class, 'orderPayment']);
     Route::get('orders', [ShopController::class, 'orders']);
     Route::get('orders/{id}/invoice', [ShopController::class, 'orderInvoice']);
+});
+
+// ── ADDRESS ROUTES (Saved user addresses) ──
+Route::prefix('address')->group(function () {
+    Route::get('/', [AddressController::class, 'index']);
+    Route::post('/', [AddressController::class, 'store']);
+    Route::post('{id}', [AddressController::class, 'update']);
+    Route::post('{id}/default', [AddressController::class, 'setDefault']);
+    Route::delete('{id}', [AddressController::class, 'destroy']);
 });
 
 // ── MEDIA ROUTES (Cloudinary uploads) ──

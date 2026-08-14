@@ -236,12 +236,12 @@ function OrdersPage() {
         )}
 
         {/* Status Filters */}
-        <div className="flex flex-wrap gap-2 mb-6 overflow-x-auto pb-2">
+        <div className="flex flex-nowrap sm:flex-wrap gap-2 mb-6 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory">
           {orderStatuses.map((status) => (
             <button
               key={status.key}
               onClick={() => setActiveFilter(status.key)}
-              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
+              className={`snap-start px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
                 activeFilter === status.key
                   ? "bg-[#3271D7] text-white shadow-lg shadow-blue-200"
                   : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
@@ -296,10 +296,10 @@ function OrdersPage() {
                   key={order.id}
                   className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-blue-200 overflow-hidden"
                 >
-                  <div className="p-6">
+                  <div className="p-4 sm:p-6">
                     {/* Order Header */}
-                    <div className="flex flex-wrap items-start justify-between gap-4">
-                      <div className="flex-1 min-w-[200px]">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0 w-full">
                         <div className="flex items-center gap-3 mb-3 flex-wrap">
                           <span className="text-sm font-bold text-gray-900 bg-blue-50 px-3 py-1 rounded-lg">
                             Order #{order.id}
@@ -326,21 +326,21 @@ function OrdersPage() {
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm text-gray-500 mt-2">
-                          <div className="flex items-center gap-2">
-                            <Calendar size={14} className="text-[#3271D7]" />
-                            <span>{formatDateShort(order.created_at)}</span>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Calendar size={14} className="text-[#3271D7] flex-shrink-0" />
+                            <span className="truncate">{formatDateShort(order.created_at)}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Package size={14} className="text-[#3271D7]" />
+                            <Package size={14} className="text-[#3271D7] flex-shrink-0" />
                             <span>
                               {itemCount} {itemCount === 1 ? "item" : "items"}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Truck size={14} className="text-[#3271D7]" />
-                            <span>{order.tracking_id ? "Shipped" : "Not shipped"}</span>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Truck size={14} className="text-[#3271D7] flex-shrink-0" />
+                            <span className="truncate">{order.tracking_id ? "Shipped" : "Not shipped"}</span>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 md:justify-start justify-end">
                             <span className="font-extrabold text-[#3271D7] text-base">
                               ₹{parseFloat(order.total || 0).toLocaleString()}
                             </span>
@@ -348,14 +348,14 @@ function OrdersPage() {
                         </div>
 
                         {order.tracking_id && (
-                          <div className="mt-3 flex items-center gap-2 bg-indigo-50/50 border border-indigo-100 rounded-xl px-3 py-1.5 inline-flex">
-                            <Truck size={14} className="text-indigo-500" />
-                            <span className="text-xs text-indigo-700 font-medium">
+                          <div className="mt-3 flex items-center gap-2 bg-indigo-50/50 border border-indigo-100 rounded-xl px-3 py-1.5 inline-flex max-w-full">
+                            <Truck size={14} className="text-indigo-500 flex-shrink-0" />
+                            <span className="text-xs text-indigo-700 font-medium truncate">
                               Tracking: {order.tracking_id}
                             </span>
                             <button
                               onClick={() => copyToClipboard(order.tracking_id)}
-                              className="p-0.5 text-indigo-400 hover:text-indigo-600 transition"
+                              className="p-0.5 text-indigo-400 hover:text-indigo-600 transition flex-shrink-0"
                             >
                               {copiedId === order.tracking_id ? (
                                 <Check size={12} className="text-emerald-600" />
@@ -367,10 +367,10 @@ function OrdersPage() {
                         )}
                       </div>
 
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex sm:flex-col lg:flex-row gap-2 w-full sm:w-auto">
                         <button
                           onClick={() => viewOrderDetails(order)}
-                          className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#3271D7] bg-blue-50 rounded-xl hover:bg-[#3271D7] hover:text-white transition-all duration-200"
+                          className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-[#3271D7] bg-blue-50 rounded-xl hover:bg-[#3271D7] hover:text-white transition-all duration-200"
                         >
                           <Eye size={16} />
                           View Details
@@ -378,7 +378,7 @@ function OrdersPage() {
 
                         <button
                           onClick={() => viewInvoice(order.id)}
-                          className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#3271D7] rounded-xl hover:bg-[#265bb5] transition-all duration-200"
+                          className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-[#3271D7] rounded-xl hover:bg-[#265bb5] transition-all duration-200"
                         >
                           <FileText size={16} />
                           Invoice
@@ -389,7 +389,7 @@ function OrdersPage() {
                     {/* Order Items Preview */}
                     {order.items && order.items.length > 0 && (
                       <div className="mt-4 pt-4 border-t border-gray-100">
-                        <div className="flex items-center gap-4 overflow-x-auto pb-2">
+                        <div className="flex items-center gap-4 overflow-x-auto pb-2 -mx-1 px-1">
                           {order.items.slice(0, 3).map((item, index) => {
                             // Use the resolved image URL
                             const imageUrl = item.image
@@ -420,7 +420,7 @@ function OrdersPage() {
                             );
                           })}
                           {itemCount > 3 && (
-                            <span className="text-xs text-gray-400 font-medium">
+                            <span className="text-xs text-gray-400 font-medium flex-shrink-0">
                               +{itemCount - 3} more
                             </span>
                           )}
@@ -437,20 +437,20 @@ function OrdersPage() {
 
       {/* Order Details Modal */}
       {modalOpen && selectedOrder && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[92vh] overflow-hidden shadow-2xl">
             {/* Modal Header */}
-            <div className="sticky top-0 z-10 bg-gradient-to-r from-[#3271D7] to-[#4f8ef5] px-6 py-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-xl font-bold text-white">Order #{selectedOrder.id}</h3>
-                  <p className="text-sm text-blue-100">
+            <div className="sticky top-0 z-10 bg-gradient-to-r from-[#3271D7] to-[#4f8ef5] px-4 sm:px-6 py-4 sm:py-5">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="text-lg sm:text-xl font-bold text-white truncate">Order #{selectedOrder.id}</h3>
+                  <p className="text-xs sm:text-sm text-blue-100 truncate">
                     Placed on {formatDate(selectedOrder.created_at)}
                   </p>
                 </div>
                 <button
                   onClick={() => setModalOpen(false)}
-                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition text-white"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition text-white flex-shrink-0"
                   aria-label="Close"
                 >
                   <X size={22} />
@@ -459,7 +459,7 @@ function OrdersPage() {
             </div>
 
             {/* Modal Body */}
-            <div className="overflow-y-auto max-h-[calc(90vh-80px)] px-6 py-6">
+            <div className="overflow-y-auto max-h-[calc(92vh-80px)] px-4 sm:px-6 py-4 sm:py-6">
               {/* Status Bar */}
               <div className="bg-gradient-to-r from-blue-50 to-white rounded-2xl p-4 border border-blue-100 mb-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
@@ -569,12 +569,12 @@ function OrdersPage() {
                     return (
                       <div
                         key={index}
-                        className="flex items-center gap-4 bg-gray-50/30 rounded-xl p-3 border border-gray-100 hover:bg-gray-50 transition"
+                        className="flex items-center gap-3 sm:gap-4 bg-gray-50/30 rounded-xl p-3 border border-gray-100 hover:bg-gray-50 transition"
                       >
                         <img
                           src={imageUrl}
                           alt={item.product_name}
-                          className="w-16 h-16 object-contain rounded-lg bg-[#F5F5F5] p-1.5 mix-blend-multiply"
+                          className="w-14 h-14 sm:w-16 sm:h-16 object-contain rounded-lg bg-[#F5F5F5] p-1.5 mix-blend-multiply flex-shrink-0"
                           onError={(e) => {
                             e.target.src = "/placeholder.jpg";
                           }}
@@ -583,7 +583,7 @@ function OrdersPage() {
                           <p className="font-semibold text-gray-900 text-sm truncate">
                             {item.product_name}
                           </p>
-                          <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-500">
                             <span>Qty: {item.quantity}</span>
                             {item.size && <span>• Size: {item.size}</span>}
                             <span className="text-[#3271D7] font-bold">
@@ -602,16 +602,16 @@ function OrdersPage() {
 
               {/* Total */}
               <div className="bg-gradient-to-r from-[#3271D7] to-[#4f8ef5] rounded-2xl p-5 shadow-lg shadow-blue-100">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-3">
                   <span className="text-white font-semibold">Total Amount</span>
-                  <span className="text-2xl font-extrabold text-white">
+                  <span className="text-xl sm:text-2xl font-extrabold text-white">
                     ₹{parseFloat(selectedOrder.total || 0).toLocaleString()}
                   </span>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
                 {selectedOrder.tracking_id && (
                   <button
                     onClick={() => {
@@ -619,7 +619,7 @@ function OrdersPage() {
                       setCopiedId(selectedOrder.tracking_id);
                       setTimeout(() => setCopiedId(null), 2000);
                     }}
-                    className="flex-1 min-w-[120px] flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition font-semibold"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition font-semibold"
                   >
                     <Copy size={16} />
                     Copy Tracking
@@ -627,7 +627,7 @@ function OrdersPage() {
                 )}
                 <button
                   onClick={() => viewInvoice(selectedOrder.id)}
-                  className="flex-1 min-w-[120px] flex items-center justify-center gap-2 px-4 py-2.5 bg-[#3271D7] text-white rounded-xl hover:bg-[#265bb5] transition font-semibold"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#3271D7] text-white rounded-xl hover:bg-[#265bb5] transition font-semibold"
                 >
                   <FileText size={16} />
                   View Invoice
