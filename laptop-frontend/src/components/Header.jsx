@@ -310,6 +310,7 @@ const Header = () => {
               all_categories: allCategories,
               brands: data?.brands || [],
               budgets: data?.budgets || [],
+              professions: data?.professions || [],
             });
           }
         })
@@ -389,8 +390,8 @@ const Header = () => {
     navigate(`/bridal-lehenga?budget_id=${budget.id}`);
   };
 
-  const goToProfessionCategory = (category) => {
-    navigate(`/bridal-lehenga?category_id=${category.id}`);
+  const goToProfession = (profession) => {
+    navigate(`/bridal-lehenga?profession_id=${profession.id}`);
   };
 
   const handleLogout = () => {
@@ -470,10 +471,10 @@ const Header = () => {
 
           <FilterDropdown
             label="By Profession"
-            items={menu.all_categories}
-            onSelect={goToProfessionCategory}
-            renderItem={(c) => c.name}
-            emptyText="No categories available"
+            items={menu.professions}
+            onSelect={goToProfession}
+            renderItem={(p) => p.name}
+            emptyText="No professions available"
           />
 
           <div className="ml-8">
@@ -639,13 +640,13 @@ const Header = () => {
 
           <FilterDropdown
             label="By Profession"
-            items={menu.all_categories}
-            onSelect={(c) => {
-              goToProfessionCategory(c);
+            items={menu.professions}
+            onSelect={(p) => {
+              goToProfession(p);
               setMobileMenuOpen(false);
             }}
-            renderItem={(c) => c.name}
-            emptyText="No categories available"
+            renderItem={(p) => p.name}
+            emptyText="No professions available"
           />
         </div>
       )}
