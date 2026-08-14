@@ -56,6 +56,8 @@ export default function EditBanner() {
   const [timerEndAt, setTimerEndAt] = useState("");
   const [bgColor, setBgColor] = useState("#B2EDD5");
   const [rating, setRating] = useState("");
+  const [productId, setProductId] = useState("");
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const { toasts, show, remove } = useToast();
@@ -82,6 +84,16 @@ export default function EditBanner() {
     .catch(err => console.log(err));
 
   }, []);
+
+  useEffect(() => {
+    if (!selectedCompany) return;
+    api.get(`/product/get?company_id=${selectedCompany}`)
+      .then(res => {
+        const list = Array.isArray(res.data?.data) ? res.data.data : [];
+        setProducts(list);
+      })
+      .catch(err => console.log(err));
+  }, [selectedCompany]);
 
   const fetchBanner = async () => {
 
@@ -112,6 +124,7 @@ export default function EditBanner() {
         setTimerEndAt(b.timer_end_at || "");
         setBgColor(b.bg_color || "#B2EDD5");
         setRating(b.rating !== null && b.rating !== undefined && b.rating !== "" ? String(b.rating) : "");
+        setProductId(b.product_id ? String(b.product_id) : "");
 
       } else {
 
@@ -160,6 +173,7 @@ export default function EditBanner() {
         bg_color: bannerGroup === "laptop_deals" ? bgColor : "",
         rating: bannerGroup === "testimonial" ? rating : "",
         timer_end_at: timerEndAt || null,
+        product_id: productId || null,
       });
       if (res.data.status) {
         show("success", "Banner updated!", "The banner has been saved.");
@@ -507,6 +521,8 @@ export default function EditBanner() {
                     value={selectedCompany}
                     onChange={(e) => {
                       setSelectedCompany(e.target.value);
+                      setProducts([]);
+                      setProductId("");
                       localStorage.setItem("selected_company_id", e.target.value);
                     }}
                   >
@@ -725,6 +741,27 @@ export default function EditBanner() {
                         value={timerEndAt}
                         onChange={(e) => setTimerEndAt(e.target.value)}
                       />
+                    </div>
+
+                    <div className="sbf-field">
+                      <div className="sbf-label-row">
+                        <span className="sbf-label">Linked Product</span>
+                      </div>
+                      <select
+                        className="sbf-select"
+                        value={productId}
+                        onChange={(e) => setProductId(e.target.value)}
+                      >
+                        <option value="">Select a product…</option>
+                        {products.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.product_name} — ₹{Number(p.offer_price || p.price || 0).toLocaleString("en-IN")}
+                          </option>
+                        ))}
+                      </select>
+                      <p style={{ fontSize: 11, color: "#8a8f98", marginTop: 6 }}>
+                        Enables the ADD CART &amp; VIEW DETAILS buttons on the storefront.
+                      </p>
                     </div>
                   </>
                 )}

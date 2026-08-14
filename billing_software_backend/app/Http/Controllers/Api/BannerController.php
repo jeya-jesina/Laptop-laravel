@@ -24,6 +24,7 @@ class BannerController extends Controller
         $bg_color = trim($request->input('bg_color', ''));
         $rating = $request->input('rating');
         $timer_end_at = $request->input('timer_end_at');
+        $product_id = intval($request->input('product_id', 0));
 
         $textOnlyGroups = ['corporate_offer', 'testimonial'];
 
@@ -49,6 +50,7 @@ class BannerController extends Controller
             'banner_group' => $banner_group,
             'sort_order' => $sort_order,
             'company_id' => $company_id,
+            'product_id' => $product_id > 0 ? $product_id : null,
             'status' => 'active',
             'is_deleted' => 0,
             'subtitle' => $subtitle !== '' ? $subtitle : null,
@@ -173,6 +175,7 @@ class BannerController extends Controller
         $bg_color = trim($request->input('bg_color', ''));
         $rating = $request->input('rating');
         $timer_end_at = $request->input('timer_end_at');
+        $product_id = intval($request->input('product_id', 0));
 
         $textOnlyGroups = ['corporate_offer', 'testimonial'];
 
@@ -197,6 +200,7 @@ class BannerController extends Controller
             'link_url' => $link_url ?: null,
             'banner_group' => $banner_group,
             'sort_order' => $sort_order,
+            'product_id' => $product_id > 0 ? $product_id : null,
             'subtitle' => $subtitle !== '' ? $subtitle : null,
             'badge' => $badge !== '' ? $badge : null,
             'price' => ($price !== null && $price !== '') ? floatval($price) : null,
