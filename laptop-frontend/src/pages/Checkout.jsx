@@ -54,7 +54,7 @@ export default function Checkout() {
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [showNewAddress, setShowNewAddress] = useState(false);
-  const [saveAddress, setSaveAddress] = useState(false);
+  const [saveAddress, setSaveAddress] = useState(true);
   const [newAddress, setNewAddress] = useState({
     label: "Home",
     address: "",
