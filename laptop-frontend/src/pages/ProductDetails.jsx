@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
 import { Heart, ShoppingBag, Truck, ChevronLeft, ChevronRight, Play, AlertTriangle, X, Expand } from "lucide-react";
 import { formatCurrency, getDiscountPercent } from "../utils/formatters";
@@ -385,7 +386,11 @@ export default function ProductDetails() {
 
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-10">
         {/* Left Column - Media Gallery */}
-        <div>
+        <motion.div
+          initial={{ opacity: 0, x: -40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
+        >
           {/* Main Media Display - No black background */}
           <div 
             className="relative rounded-xl overflow-hidden cursor-pointer bg-white"
@@ -503,7 +508,7 @@ export default function ProductDetails() {
               ))}
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Right Column - Product Info */}
         <div>
