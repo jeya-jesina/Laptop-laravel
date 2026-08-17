@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Heart, ShoppingCart, Cpu, MemoryStick, HardDrive } from "lucide-react";
 import { formatCurrency, getDiscountPercent } from "../utils/formatters";
 import { resolveMediaUrl } from "../services/api";
@@ -27,9 +28,14 @@ export default function ProductCard({ product, onNavigate, onAddToCart, onAddToW
   };
 
   return (
-    <div
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -8, boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
       onClick={handleNavigate}
-      className="group bg-white rounded-xl border border-gray-200 overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-300 flex flex-col"
+      className="group bg-white rounded-xl border border-gray-200 overflow-hidden cursor-pointer flex flex-col transition-colors duration-300 hover:border-[#3271D7]/30"
     >
       {/* Image */}
       <div className="relative bg-[#F5F5F5] overflow-hidden h-32 sm:h-52">
@@ -38,12 +44,12 @@ export default function ProductCard({ product, onNavigate, onAddToCart, onAddToW
             src={image}
             alt={product?.product_name || "Product"}
             onError={() => setImageError(true)}
-            className="w-full h-full object-contain mix-blend-multiply scale-110 group-hover:scale-125 transition-transform duration-300"
+            className="w-full h-full object-contain mix-blend-multiply scale-110 group-hover:scale-125 transition-transform duration-500 ease-out"
             loading="lazy"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <svg className="w-16 h-16 text-[#c9d4e8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-16 h-16 text-[#c9d4e8] group-hover:rotate-180 transition-transform duration-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
             </svg>
           </div>
@@ -52,9 +58,14 @@ export default function ProductCard({ product, onNavigate, onAddToCart, onAddToW
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5">
           {discount > 0 && (
-            <span className="bg-red-600 text-white text-xs font-semibold px-2 py-0.5 rounded">
+            <motion.span
+              initial={{ scale: 0, rotate: -10 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 500, damping: 15, delay: 0.1 }}
+              className="bg-red-600 text-white text-xs font-semibold px-2 py-0.5 rounded badge-bounce"
+            >
               {discount}% OFF
-            </span>
+            </motion.span>
           )}
           {product?.condition_grade && (
             <span className="bg-white/90 text-[#3271D7] text-[11px] font-medium px-2 py-0.5 rounded border border-[#3271D7]/30">
@@ -64,33 +75,35 @@ export default function ProductCard({ product, onNavigate, onAddToCart, onAddToW
         </div>
 
         {outOfStock && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <span className="bg-white text-red-600 text-sm font-semibold px-4 py-1.5 rounded-full">
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-[1px]">
+            <span className="bg-white text-red-600 text-sm font-semibold px-4 py-1.5 rounded-full animate-bounce-in">
               Out of Stock
             </span>
           </div>
         )}
 
         {/* Wishlist */}
-        <button
+        <motion.button
+          whileHover={{ scale: 1.2 }}
+          whileTap={{ scale: 0.85 }}
           onClick={handleWishlist}
-          className="absolute top-2 right-2 sm:top-3 sm:right-3 w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-white shadow flex items-center justify-center hover:scale-110 transition"
+          className="absolute top-2 right-2 sm:top-3 sm:right-3 w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-white shadow flex items-center justify-center transition-shadow hover:shadow-lg"
           aria-label="Add to wishlist"
         >
           <Heart
-            className={`w-4 h-4 sm:w-5 sm:h-5 ${isWishlisted ? "fill-red-500 text-red-500" : "text-gray-400"}`}
+            className={`w-4 h-4 sm:w-5 sm:h-5 transition-all duration-300 ${isWishlisted ? "fill-red-500 text-red-500 scale-110" : "text-gray-400 group-hover:text-red-400"}`}
           />
-        </button>
+        </motion.button>
       </div>
 
       {/* Body */}
       <div className="p-2.5 sm:p-4 flex flex-col flex-1">
         {product?.brand_name && (
-          <p className="text-[10px] sm:text-[11px] uppercase tracking-wide text-gray-400 font-medium">
+          <p className="text-[10px] sm:text-[11px] uppercase tracking-wide text-gray-400 font-medium group-hover:text-[#3271D7] transition-colors duration-300">
             {product.brand_name}
           </p>
         )}
-        <h3 className="mt-1 text-[13px] sm:text-[15px] font-semibold text-gray-900 line-clamp-2 leading-snug min-h-[34px] sm:min-h-[42px]">
+        <h3 className="mt-1 text-[13px] sm:text-[15px] font-semibold text-gray-900 line-clamp-2 leading-snug min-h-[34px] sm:min-h-[42px] group-hover:text-[#3271D7] transition-colors duration-300">
           {product?.product_name || "Product"}
         </h3>
 
@@ -118,7 +131,7 @@ export default function ProductCard({ product, onNavigate, onAddToCart, onAddToW
 
         {/* Price */}
         <div className="mt-3 sm:mt-4 flex items-baseline gap-1 sm:gap-2">
-          <span className="text-[15px] sm:text-lg font-bold text-gray-900">
+          <span className="text-[15px] sm:text-lg font-bold text-gray-900 group-hover:text-[#3271D7] transition-colors duration-300">
             {formatCurrency(offerPrice)}
           </span>
           {discount > 0 && (
@@ -135,15 +148,17 @@ export default function ProductCard({ product, onNavigate, onAddToCart, onAddToW
         )}
 
         {/* CTA */}
-        <button
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
           onClick={handleCart}
           disabled={outOfStock}
-          className="mt-3 sm:mt-4 w-full flex items-center justify-center gap-1.5 sm:gap-2 rounded-lg bg-[#3271D7] text-white text-[11px] sm:text-sm font-semibold py-2 sm:py-2.5 hover:bg-[#265bb5] transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-3 sm:mt-4 w-full flex items-center justify-center gap-1.5 sm:gap-2 rounded-lg bg-[#3271D7] text-white text-[11px] sm:text-sm font-semibold py-2 sm:py-2.5 hover:bg-[#265bb5] transition-colors disabled:opacity-50 disabled:cursor-not-allowed ripple"
         >
           <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           {outOfStock ? "Out of Stock" : "Add to Cart"}
-        </button>
+        </motion.button>
       </div>
-    </div>
+    </motion.div>
   );
 }

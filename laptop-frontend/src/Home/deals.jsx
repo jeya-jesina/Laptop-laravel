@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import api, { resolveMediaUrl, getActiveCompanyId } from "../services/api";
 import { useStore } from "../contexts/StoreContext";
@@ -157,11 +158,23 @@ const Deals = () => {
 
   return (
     <section className="w-full bg-[#f3f3f3] py-12 px-4">
-      <div className="max-w-[91%] mx-auto bg-[#eff4fc] rounded-[32px] overflow-hidden shadow-sm">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="max-w-[91%] mx-auto bg-[#eff4fc] rounded-[32px] overflow-hidden shadow-sm"
+      >
 
         {/* TOP BAR: GRADIENT HEADER SECTION */}
         <div className="bg-gradient-to-r from-[#f7cbb1] to-[#ff7a7a] px-8 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="text-center sm:text-left">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="text-center sm:text-left"
+          >
             <h2 className="text-lg sm:text-[26px] font-black text-[#1c1c1c] tracking-tight leading-tight">
               <span className="block sm:inline">DEAL OF</span>{" "}
               <span className="block sm:inline">THE DAY</span>
@@ -169,11 +182,18 @@ const Deals = () => {
             <p className="text-[11px] sm:text-[12px] text-[#2c2c2c] font-medium mt-0.5">
               Handpicked daily — the deepest discount and biggest savings on a flagship pick.
             </p>
-          </div>
+          </motion.div>
 
           {/* TIMER */}
           {deal.timer_end_at ? (
-            <CountdownTimer endAt={deal.timer_end_at} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3, duration: 0.4, type: "spring", stiffness: 200 }}
+            >
+              <CountdownTimer endAt={deal.timer_end_at} />
+            </motion.div>
           ) : null}
         </div>
 
@@ -181,20 +201,34 @@ const Deals = () => {
         <div className="p-8 lg:p-12 grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
 
           {/* LEFT IMAGE DISPLAY CONTAINER */}
-          <div className="md:col-span-6 flex justify-center items-center">
-            <div className="w-full max-w-[440px]">
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="md:col-span-6 flex justify-center items-center"
+          >
+            <div className="w-full max-w-[440px] group/deal-img">
               {deal.image_url && (
-                <img
+                <motion.img
+                  whileHover={{ scale: 1.08, rotate: 1 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 15 }}
                   src={resolveMediaUrl(deal.image_url)}
                   alt={deal.title || "Deal"}
-                  className="w-full h-auto object-contain mix-blend-multiply"
+                  className="w-full h-auto object-contain mix-blend-multiply cursor-pointer"
                 />
               )}
             </div>
-          </div>
+          </motion.div>
 
           {/* RIGHT SIDE DATA */}
-          <div className="md:col-span-6 flex flex-col justify-center">
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="md:col-span-6 flex flex-col justify-center"
+          >
             {deal.subtitle && (
               <span className="text-[10px] font-extrabold tracking-[0.2em] text-[#7a7a7a] uppercase mb-1">
                 {deal.subtitle}
@@ -209,7 +243,7 @@ const Deals = () => {
 
             {deal.description && (
               <div className="mt-3.5 flex items-center gap-1.5 text-[11px] font-bold tracking-wide">
-                <span className="w-2 h-2 rounded-full bg-[#28a745]"></span>
+                <span className="w-2 h-2 rounded-full bg-[#28a745] animate-pulse"></span>
                 <span className="text-[#6c6c6c]">{deal.description}</span>
               </div>
             )}
@@ -226,31 +260,41 @@ const Deals = () => {
             )}
 
             {saveText && (
-              <div className="mt-2.5 self-start bg-[#2b6be2] text-white text-[10px] font-extrabold px-2.5 py-1 rounded-[4px] tracking-wide">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5, type: "spring", stiffness: 300 }}
+                className="mt-2.5 self-start bg-[#2b6be2] text-white text-[10px] font-extrabold px-2.5 py-1 rounded-[4px] tracking-wide"
+              >
                 {saveText}
-              </div>
+              </motion.div>
             )}
 
             {/* INTERACTION ACTION BUTTONS ZONE */}
             <div className="mt-8 flex flex-wrap gap-3">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05, boxShadow: "0 8px 25px rgba(43,107,226,0.4)" }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleAddToCart}
-                className="h-[46px] px-8 rounded-full bg-[#2b6be2] text-white font-extrabold text-[13px] hover:bg-[#1f56be] transition shadow-sm tracking-wide"
+                className="h-[46px] px-8 rounded-full bg-[#2b6be2] text-white font-extrabold text-[13px] hover:bg-[#1f56be] transition-colors shadow-sm tracking-wide ripple"
               >
                 ADD CART
-              </button>
+              </motion.button>
 
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05, backgroundColor: "#e0e0e0" }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleViewDetails}
-                className="h-[46px] px-7 rounded-full border border-[#d2d2d2] text-[#555] font-extrabold text-[13px] bg-[#f8f9fa] hover:bg-[#ececec] transition tracking-wide"
+                className="h-[46px] px-7 rounded-full border border-[#d2d2d2] text-[#555] font-extrabold text-[13px] bg-[#f8f9fa] transition-all duration-300 tracking-wide"
               >
                 VIEW DETAILS
-              </button>
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
 
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 };

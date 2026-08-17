@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import api, { resolveMediaUrl, getActiveCompanyId } from "../services/api";
 import { useStore } from "../contexts/StoreContext";
@@ -79,25 +80,42 @@ export default function CrazyRefurbished() {
       <div className="max-w-[97%] mx-auto px-3 md:px-8 lg:px-10">
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="flex items-center justify-between mb-4"
+        >
           <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-gray-900">
             CRAZY REFURBISHED DEALS
           </h1>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => navigate("/offers")}
-            className="hidden sm:inline-flex items-center rounded-full border border-gray-300 px-5 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50"
+            className="hidden sm:inline-flex items-center rounded-full border border-gray-300 px-5 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50 transition-all duration-300"
           >
             VIEW ALL
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
 
     {/* Filter pills */}
-<div className="grid grid-cols-2 md:flex md:flex-wrap gap-2 md:gap-3 mb-3 md:mb-6">
-  {filters.map((f) => (
-    <button
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: 0.1, duration: 0.4 }}
+      className="grid grid-cols-2 md:flex md:flex-wrap gap-2 md:gap-3 mb-3 md:mb-6"
+    >
+  {filters.map((f, i) => (
+    <motion.button
       key={f.label}
+      whileHover={{ scale: 1.04, y: -2 }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
       onClick={() => navigate("/offers")}
-      className="w-full md:w-auto flex flex-col items-start rounded-md border px-3 md:px-4 py-2 min-w-0 md:min-w-[150px] text-left transition-colors border-gray-200 hover:border-gray-300"
+      className="w-full md:w-auto flex flex-col items-start rounded-md border px-3 md:px-4 py-2 min-w-0 md:min-w-[150px] text-left transition-colors border-gray-200 hover:border-[#3271D7] hover:shadow-md bg-white"
     >
       <span className="text-xs font-semibold text-gray-900">
         {f.label}
@@ -106,33 +124,54 @@ export default function CrazyRefurbished() {
       <span className="text-[11px] text-gray-500">
         {f.sub}
       </span>
-    </button>
+    </motion.button>
   ))}
-</div>
+</motion.div>
 
         {/* Product grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.06 } }
+          }}
+          className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4"
+        >
           {products.map((p) => {
             const price = Number(p.offer_price) || Number(p.price) || 0;
             const mrp = Number(p.original_price) || price;
             const discountPct = mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0;
             return (
-              <div
+              <motion.div
                 key={p.id}
+                variants={{
+                  hidden: { opacity: 0, y: 30 },
+                  visible: { opacity: 1, y: 0 }
+                }}
+                whileHover={{ y: -6, boxShadow: "0 12px 30px rgba(0,0,0,0.1)" }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 onClick={() => navigate(`/product/${p.id}`)}
-                className="flex flex-col rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow bg-white cursor-pointer"
+                className="flex flex-col rounded-lg border border-gray-200 overflow-hidden bg-white cursor-pointer transition-colors hover:border-[#3271D7]/30"
               >
                 {/* Image */}
-                <div className="relative bg-[#F5F5F5] h-[90px] md:h-[150px] flex items-center justify-center">
-                  <img
+                <div className="relative bg-[#F5F5F5] h-[90px] md:h-[150px] flex items-center justify-center overflow-hidden">
+                  <motion.img
+                    whileHover={{ scale: 1.15 }}
+                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
                     src={resolveMediaUrl(p.image)}
                     alt={p.product_name || "Offer"}
                     className="max-w-[75%] max-h-[70px] md:max-h-[120px] object-contain mix-blend-multiply"
                   />
                   {discountPct > 0 && (
-                    <span className="absolute top-2 right-2 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded">
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute top-2 right-2 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded"
+                    >
                       {discountPct}% off
-                    </span>
+                    </motion.span>
                   )}
                 </div>
 
@@ -171,17 +210,19 @@ export default function CrazyRefurbished() {
                     </span>
                   )}
 
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
                     onClick={(e) => handleAddToCart(e, p)}
-                    className="mt-auto w-full bg-blue-600 hover:bg-blue-700 text-white text-[10px] md:text-xs font-semibold py-1 md:py-2 rounded"
+                    className="mt-auto w-full bg-blue-600 hover:bg-blue-700 text-white text-[10px] md:text-xs font-semibold py-1 md:py-2 rounded transition-colors"
                   >
                     ADD TO CART
-                  </button>
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
 
       </div>
     </section>
