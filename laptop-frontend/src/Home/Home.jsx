@@ -17,8 +17,9 @@ export default function Home() {
       <CrazyRefurbished/>
       <LaptopDeals />
       <BudgerRefurbished/>
-      <Customer />
+      
       <Clients />
+      <Customer />
       <Enquire />
     </>
   );
