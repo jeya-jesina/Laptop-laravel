@@ -32,7 +32,7 @@ export default function ProductCard({ product, onNavigate, onAddToCart, onAddToW
       className="group bg-white rounded-xl border border-gray-200 overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-300 flex flex-col"
     >
       {/* Image */}
-      <div className="relative bg-[#F5F5F5] overflow-hidden h-32 sm:h-52">
+      <div className="relative bg-[#F5F5F5] overflow-hidden h-20 sm:h-32">
         {image ? (
           <img
             src={image}
@@ -74,28 +74,28 @@ export default function ProductCard({ product, onNavigate, onAddToCart, onAddToW
         {/* Wishlist */}
         <button
           onClick={handleWishlist}
-          className="absolute top-2 right-2 sm:top-3 sm:right-3 w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-white shadow flex items-center justify-center hover:scale-110 transition"
+          className="absolute top-2 right-2 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white shadow flex items-center justify-center hover:scale-110 transition"
           aria-label="Add to wishlist"
         >
           <Heart
-            className={`w-4 h-4 sm:w-5 sm:h-5 ${isWishlisted ? "fill-red-500 text-red-500" : "text-gray-400"}`}
+            className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isWishlisted ? "fill-red-500 text-red-500" : "text-gray-400"}`}
           />
         </button>
       </div>
 
       {/* Body */}
-      <div className="p-2.5 sm:p-4 flex flex-col flex-1">
+      <div className="p-2 sm:p-3 flex flex-col flex-1">
         {product?.brand_name && (
-          <p className="text-[10px] sm:text-[11px] uppercase tracking-wide text-gray-400 font-medium">
+          <p className="text-[9px] sm:text-[11px] uppercase tracking-wide text-gray-400 font-medium">
             {product.brand_name}
           </p>
         )}
-        <h3 className="mt-1 text-[13px] sm:text-[15px] font-semibold text-gray-900 line-clamp-2 leading-snug min-h-[34px] sm:min-h-[42px]">
+        <h3 className="mt-1 text-[12px] sm:text-[15px] font-semibold text-gray-900 line-clamp-2 leading-snug min-h-[30px] sm:min-h-[38px]">
           {product?.product_name || "Product"}
         </h3>
 
         {/* Specs */}
-        <div className="mt-2 sm:mt-3 flex flex-wrap gap-x-3 sm:gap-x-4 gap-y-1 text-[11px] sm:text-[12px] text-gray-600">
+        <div className="mt-1 sm:mt-2 flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] sm:text-[12px] text-gray-600">
           {product?.processor && (
             <span className="inline-flex items-center gap-1">
               <Cpu className="w-3.5 h-3.5 text-[#3271D7]" />
@@ -117,19 +117,19 @@ export default function ProductCard({ product, onNavigate, onAddToCart, onAddToW
         </div>
 
         {/* Price */}
-        <div className="mt-3 sm:mt-4 flex items-baseline gap-1 sm:gap-2">
-          <span className="text-[15px] sm:text-lg font-bold text-gray-900">
+        <div className="mt-1.5 sm:mt-3 flex items-baseline gap-1 sm:gap-2">
+          <span className="text-sm sm:text-lg font-bold text-gray-900">
             {formatCurrency(offerPrice)}
           </span>
           {discount > 0 && (
-            <span className="text-xs sm:text-sm text-gray-400 line-through">
+            <span className="text-[11px] sm:text-sm text-gray-400 line-through">
               {formatCurrency(product?.original_price || price)}
             </span>
           )}
         </div>
 
         {product?.warranty && (
-          <p className="mt-1 text-[10px] sm:text-[11px] text-gray-400">
+          <p className="mt-0.5 text-[9px] sm:text-[11px] text-gray-400">
             {product.warranty} warranty
           </p>
         )}
@@ -138,7 +138,7 @@ export default function ProductCard({ product, onNavigate, onAddToCart, onAddToW
         <button
           onClick={handleCart}
           disabled={outOfStock}
-          className="mt-3 sm:mt-4 w-full flex items-center justify-center gap-1.5 sm:gap-2 rounded-lg bg-[#3271D7] text-white text-[11px] sm:text-sm font-semibold py-2 sm:py-2.5 hover:bg-[#265bb5] transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-auto pt-1.5 sm:pt-3 w-full flex items-center justify-center gap-1.5 sm:gap-2 rounded-lg bg-[#3271D7] text-white text-[10px] sm:text-sm font-semibold py-1 sm:py-2 h-7 sm:h-10 hover:bg-[#265bb5] transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           {outOfStock ? "Out of Stock" : "Add to Cart"}

@@ -38,14 +38,14 @@ const CartItem = ({ item, onUpdate, onRemove }) => {
     FALLBACK_IMAGE;
 
   return (
-    <div className="flex flex-col md:flex-row items-start md:items-center justify-between rounded-2xl bg-white p-4 md:p-5 border border-gray-100 shadow-sm hover:shadow-lg hover:border-blue-100 transition-all duration-300">
+    <div className="flex flex-col md:flex-row items-start md:items-center justify-between rounded-2xl bg-white p-3 md:p-5 border border-gray-100 shadow-sm hover:shadow-lg hover:border-blue-100 transition-all duration-300">
       {/* Left: Image + Details */}
-      <div className="flex items-center gap-4 w-full md:w-auto">
-        <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-xl overflow-hidden bg-[#F5F5F5] flex items-center justify-center flex-shrink-0">
+      <div className="flex items-center gap-3 w-full md:w-auto">
+        <div className="h-16 w-16 sm:h-24 sm:w-24 rounded-xl overflow-hidden bg-[#F5F5F5] flex items-center justify-center flex-shrink-0">
           <img
             src={imageSrc}
             alt={item.product_name || "Product"}
-            className="w-full h-full object-contain mix-blend-multiply p-1.5"
+            className="w-full h-full object-contain mix-blend-multiply p-1"
           />
         </div>
 
@@ -53,7 +53,7 @@ const CartItem = ({ item, onUpdate, onRemove }) => {
           <h3 className="text-sm md:text-base font-semibold text-gray-900 truncate">
             {item.product_name}
           </h3>
-          <p className="text-lg font-bold text-[#3271D7] mt-1">
+          <p className="text-base md:text-lg font-bold text-[#3271D7] mt-0.5 md:mt-1">
             {formatCurrency(Number(item.price))}
             {Number(item.gst_percentage) > 0 && (
               <span className="text-xs text-gray-400 font-normal ml-1">
@@ -62,7 +62,7 @@ const CartItem = ({ item, onUpdate, onRemove }) => {
             )}
           </p>
           {item.size && (
-            <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] md:text-xs font-medium text-[#3271D7] mt-2">
+            <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-[10px] md:text-xs font-medium text-[#3271D7] mt-1">
               Size: {item.size}
             </span>
           )}
@@ -70,20 +70,20 @@ const CartItem = ({ item, onUpdate, onRemove }) => {
       </div>
 
       {/* Right: Quantity + Remove */}
-      <div className="flex items-center gap-3 mt-3 md:mt-0 w-full md:w-auto justify-between md:justify-end">
-        <div className="flex items-center gap-2 bg-blue-50 rounded-full px-2 py-1.5">
+      <div className="flex items-center gap-2 mt-2 md:mt-0 w-full md:w-auto justify-between md:justify-end">
+        <div className="flex items-center gap-1 md:gap-2 bg-blue-50 rounded-full px-1.5 py-1">
           <button
             onClick={() => onUpdate(item.id, Number(item.quantity) - 1)}
-            className="h-8 w-8 rounded-full bg-white text-[#3271D7] shadow-sm hover:bg-blue-100 transition flex items-center justify-center disabled:opacity-40"
+            className="h-7 w-7 md:h-8 md:w-8 rounded-full bg-white text-[#3271D7] shadow-sm hover:bg-blue-100 transition flex items-center justify-center disabled:opacity-40"
             disabled={Number(item.quantity) <= 1}
             aria-label="Decrease quantity"
           >
             <Minus size={14} />
           </button>
-          <span className="w-6 text-center font-bold text-gray-900">{item.quantity}</span>
+          <span className="w-5 text-center text-sm md:text-base font-bold text-gray-900">{item.quantity}</span>
           <button
             onClick={() => onUpdate(item.id, Number(item.quantity) + 1)}
-            className="h-8 w-8 rounded-full bg-white text-[#3271D7] shadow-sm hover:bg-blue-100 transition flex items-center justify-center"
+            className="h-7 w-7 md:h-8 md:w-8 rounded-full bg-white text-[#3271D7] shadow-sm hover:bg-blue-100 transition flex items-center justify-center"
             aria-label="Increase quantity"
           >
             <Plus size={14} />
@@ -92,9 +92,10 @@ const CartItem = ({ item, onUpdate, onRemove }) => {
 
         <button
           onClick={() => onRemove(item.id)}
-          className="flex items-center gap-1.5 text-red-500 text-xs md:text-sm font-medium hover:text-red-700 transition"
+          className="p-1 text-red-500 hover:text-red-700 transition"
+          aria-label="Remove item"
         >
-          <Trash2 size={16} /> Remove
+          <Trash2 size={16} />
         </button>
       </div>
     </div>
