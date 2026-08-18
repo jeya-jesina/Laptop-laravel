@@ -17,6 +17,7 @@ import {
   Lock,
 } from "lucide-react";
 import { API_BASE_URL } from "../services/api";
+import ForgotPasswordModal from "../components/ForgotPasswordModal";
 
 function ProfilePage() {
   const { user, updateProfile, loading, changePassword } = useAuth();
@@ -35,6 +36,7 @@ function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordMessage, setPasswordMessage] = useState({ type: "", text: "" });
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -457,12 +459,13 @@ function ProfilePage() {
                   />
                 </div>
                 <div className="text-right mt-2">
-                  <Link
-                    to="/forgot-password"
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPassword(true)}
                     className="text-sm text-[#3271D7] hover:underline"
                   >
                     Forgot your password?
-                  </Link>
+                  </button>
                 </div>
                 <button
                   type="submit"
@@ -481,6 +484,10 @@ function ProfilePage() {
           <p>REnewLAP - Certified Renewed Laptops, Best Prices</p>
         </div>
       </div>
+
+      {showForgotPassword && (
+        <ForgotPasswordModal onClose={() => setShowForgotPassword(false)} />
+      )}
     </div>
   );
 }

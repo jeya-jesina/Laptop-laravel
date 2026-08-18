@@ -925,7 +925,20 @@ class ShopController extends Controller
     {
         $user_id = intval($request->query('user_id', 0));
 
+        // The route is /shop/orders/{id}/invoice, so the id is an order id.
+        // Resolve the order first; if it isn't found, the caller may have
+        // passed an invoice-table id (older payment success links), so fall
+        // back to the order linked to that invoice.
         $order = Order::where('id', intval($id))->first();
+
+        $invoiceRecord = $order
+            ? Invoice::where('order_id', $order->id)->first()
+            : Invoice::find(intval($id));
+
+        if (!$order && $invoiceRecord) {
+            $order = Order::where('id', $invoiceRecord->order_id)->first();
+        }
+
         if (!$order) {
             return response()->json(["success" => false, "message" => "Invoice not found"]);
         }
@@ -937,7 +950,9 @@ class ShopController extends Controller
 
         // Prefer the invoice table record (linked via order_id) so the storefront
         // invoice matches the one shown in the billing reports.
-        $invoiceRecord = Invoice::where('order_id', $order->id)->first();
+        if (!$invoiceRecord) {
+            $invoiceRecord = Invoice::where('order_id', $order->id)->first();
+        }
 
         $company = Company::find($order->company_id) ?: Company::find(1);
 

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import LoginBanner from "../assets/LoginBanner.png";
 import api from "../services/api";
+import ForgotPasswordModal from "../components/ForgotPasswordModal";
 
 export default function Login() {
   const { login, loading, user } = useAuth();
@@ -14,6 +16,8 @@ export default function Login() {
   const navigate = useNavigate();
   const redirect = searchParams.get("redirect") || "/";
   const [isModalOpen, setIsModalOpen] = useState(true);
+  const [showForgot, setShowForgot] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -129,22 +133,33 @@ const response = await login(email, password);
                     <label className="block text-[11px] font-medium text-gray-700 mb-1">
                       Password *
                     </label>
-                    <input 
-                      value={password} 
-                      onChange={(e) => setPassword(e.target.value)} 
-                      required 
-                      type="password" 
-                      placeholder="Enter your password" 
-                      className="w-full rounded-lg border border-blue-300 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition outline-none bg-gray-50 hover:bg-white" 
-                    />
+                    <div className="relative">
+                      <input 
+                        value={password} 
+                        onChange={(e) => setPassword(e.target.value)} 
+                        required 
+                        type={showPassword ? "text" : "password"} 
+                        placeholder="Enter your password" 
+                        className="w-full rounded-lg border border-blue-300 px-3.5 py-2.5 pr-11 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition outline-none bg-gray-50 hover:bg-white" 
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((v) => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </div>
                   <div className="text-right mt-1">
-  <Link
-    to={`/forgot-password?redirect=${encodeURIComponent(redirect)}`}
+  <button
+    type="button"
+    onClick={() => setShowForgot(true)}
     className="text-xs text-blue-600 hover:underline"
   >
     Forgot password?
-  </Link>
+  </button>
 </div>
 
                   <button 
@@ -196,6 +211,10 @@ const response = await login(email, password);
           animation: slideUp 0.3s ease-out forwards;
         }
       `}</style>
+
+      {showForgot && (
+        <ForgotPasswordModal onClose={() => setShowForgot(false)} />
+      )}
     </>
   );
 }

@@ -289,6 +289,7 @@ const Header = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef(null);
   const mobileSearchRef = useRef(null);
+  const profileRef = useRef(null);
   const [menu, setMenu] = useState({
     header_categories: [],
     all_categories: [],
@@ -327,6 +328,9 @@ const Header = () => {
         mobileSearchRef.current && mobileSearchRef.current.contains(e.target);
       if (!inDesktop && !inMobile) {
         setShowSuggestions(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setShowProfileMenu(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -547,12 +551,12 @@ const Header = () => {
           </Link>
 
           {/* Profile */}
-          <div className="relative">
+          <div className="relative" ref={profileRef}>
             <button
-              className="text-white group/profile"
+              className="flex items-center gap-2 text-white hover:opacity-80 transition"
               onClick={() => (user ? setShowProfileMenu((v) => !v) : navigate("/login"))}
             >
-              <div className="transition-transform duration-300 group-hover/profile:scale-110 group-hover/profile:rotate-6">
+              <span className="relative inline-flex">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -569,7 +573,18 @@ const Header = () => {
                     strokeLinejoin="round"
                   />
                 </svg>
-              </div>
+                {user && (
+                  <span
+                    className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-500 border-2 border-white"
+                    aria-label="Online"
+                  />
+                )}
+              </span>
+              {user && (
+                <span className="hidden md:inline text-sm font-medium max-w-[110px] truncate">
+                  {user.name || "Hi User"}
+                </span>
+              )}
             </button>
 
             {user && showProfileMenu && (
