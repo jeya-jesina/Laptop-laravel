@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 import api, { getActiveCompanyId } from "../services/api";
 
@@ -55,29 +56,42 @@ const Enquire = () => {
       <div className="w-[92%] max-w-[1450px] mx-auto">
 
 {/* Heading */}
-<h2 className="text-2xl sm:text-3xl md:text-[28px] font-extrabold uppercase text-black mb-4 md:mb-8 tracking-tight">
+<motion.h2
+  initial={{ opacity: 0, y: 20 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true }}
+  transition={{ duration: 0.5 }}
+  className="text-2xl sm:text-3xl md:text-[28px] font-extrabold uppercase text-black mb-4 md:mb-8 tracking-tight"
+>
   <span className="block md:inline">WHAT OUR</span>{" "}
   <span className="block md:inline">CUSTOMERS SAYS</span>
-</h2>
+</motion.h2>
 
         {/* Cards - Auto Scroll */}
-        <div className="relative overflow-hidden">
+        <div className="relative overflow-hidden group/testimonials">
+          <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
 
-            <div className="flex animate-client-scroll w-max">
+            <div className="flex animate-client-scroll w-max group-hover/testimonials:[animation-play-state:paused]">
 
             {[...reviews, ...reviews].map((item, index) => (
-              <div
+              <motion.div
                 key={`${item.id || index}-${index}`}
-                className="flex-shrink-0 w-[240px] md:w-[300px] mx-3 bg-white p-4 md:p-5 shadow-sm border border-gray-100 h-[220px] md:h-[270px] flex flex-col justify-between"
+                whileHover={{ y: -6, boxShadow: "0 12px 30px rgba(0,0,0,0.08)" }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="flex-shrink-0 w-[240px] md:w-[300px] mx-3 bg-white p-4 md:p-5 shadow-sm border border-gray-100 h-[220px] md:h-[270px] flex flex-col justify-between cursor-pointer transition-colors hover:border-[#3271D7]/20"
               >
 
                 <div>
 
                   <div className="flex items-center gap-3">
 
-                    <div className="w-9 h-9 md:w-11 md:h-11 rounded-full bg-red-500 text-white flex items-center justify-center font-bold">
+                    <motion.div
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      className="w-9 h-9 md:w-11 md:h-11 rounded-full bg-red-500 text-white flex items-center justify-center font-bold"
+                    >
                       {(item.title || "?").charAt(0).toUpperCase()}
-                    </div>
+                    </motion.div>
 
                     <div>
                       <h3 className="font-semibold text-sm md:text-[15px]">
@@ -98,7 +112,7 @@ const Enquire = () => {
                 <div className="flex justify-between items-center mt-5 md:mt-6">
                   <a
                     href={item.link_url || "#"}
-                    className="text-gray-500 text-xs underline hover:text-blue-600"
+                    className="text-gray-500 text-xs underline hover:text-blue-600 underline-slide transition-colors"
                   >
                     Read more...
                   </a>
@@ -113,7 +127,7 @@ const Enquire = () => {
                   </span>
                 </div>
 
-              </div>
+              </motion.div>
             ))}
 
             </div>

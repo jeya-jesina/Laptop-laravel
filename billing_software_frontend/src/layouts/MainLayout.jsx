@@ -120,7 +120,7 @@ export default function MainLayout() {
       <ShieldCheck size={22} color="#1f8cff" />
     </div>
     <h2 className="text-xl font-bold">
-      Fathima Enterprises
+      ReNewLap
     </h2>
   </div>
 

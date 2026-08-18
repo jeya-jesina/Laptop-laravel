@@ -449,8 +449,8 @@ const Header = () => {
         </button>
 
         {/* Logo */}
-        <Link to="/" className="flex items-center flex-shrink-0">
-          <h1 className="text-white text-[24px] font-bold tracking-[-0.5px]">
+        <Link to="/" className="flex items-center flex-shrink-0 group/logo">
+          <h1 className="text-white text-[24px] font-bold tracking-[-0.5px] transition-transform duration-300 group-hover/logo:scale-110 group-hover/logo:tracking-[1px]">
             REnewLAP
           </h1>
         </Link>
@@ -499,48 +499,52 @@ const Header = () => {
         {/* Right Icons */}
         <div className="flex items-center gap-3 md:gap-5 xl:gap-8 ml-2 xl:ml-10">
           {/* Cart */}
-          <Link to="/cart" className="relative text-white hover:opacity-80">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="28"
-              height="28"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M16 11V7a4 4 0 10-8 0v4M5 9h14l1 12H4L5 9z"
-              />
-            </svg>
+          <Link to="/cart" className="relative text-white group/cart">
+            <div className="transition-transform duration-300 group-hover/cart:scale-110 group-hover/cart:-translate-y-0.5">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="28"
+                height="28"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="1.8"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16 11V7a4 4 0 10-8 0v4M5 9h14l1 12H4L5 9z"
+                />
+              </svg>
+            </div>
             {cartCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+              <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center badge-bounce animate-bounce-in">
                 {cartCount}
               </span>
             )}
           </Link>
 
           {/* Wishlist */}
-          <Link to="/wishlist" className="relative text-white hover:opacity-80">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="28"
-              height="28"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z"
-              />
-            </svg>
+          <Link to="/wishlist" className="relative text-white group/wish">
+            <div className="transition-transform duration-300 group-hover/wish:scale-110 group-hover/wish:-translate-y-0.5">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="28"
+                height="28"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="1.8"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z"
+                />
+              </svg>
+            </div>
             {wishlistCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+              <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center badge-bounce animate-bounce-in">
                 {wishlistCount}
               </span>
             )}
@@ -584,7 +588,7 @@ const Header = () => {
             </button>
 
             {user && showProfileMenu && (
-              <div className="absolute right-0 top-11 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+              <div className="absolute right-0 top-11 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 animate-fade-in-up">
                 <div className="px-4 py-2 border-b border-gray-100">
                   <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
                   <p className="text-xs text-gray-500 truncate">{user.email}</p>
@@ -592,20 +596,20 @@ const Header = () => {
                 <Link
                   to="/profile"
                   onClick={() => setShowProfileMenu(false)}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-[#eef4ff] hover:text-[#3271D7] transition-colors duration-200"
                 >
                   My Profile
                 </Link>
                 <Link
                   to="/orders"
                   onClick={() => setShowProfileMenu(false)}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-[#eef4ff] hover:text-[#3271D7] transition-colors duration-200"
                 >
                   My Orders
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
                 >
                   Logout
                 </button>

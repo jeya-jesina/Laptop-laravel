@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { ShoppingCart, ArrowRight, Trash2, Plus, Minus, PackageOpen } from "lucide-react";
 import api, { resolveMediaUrl, FALLBACK_IMAGE } from "../services/api";
 import { formatCurrency } from "../utils/formatters";
@@ -276,7 +277,12 @@ export default function Cart() {
   return (
     <div className="min-h-screen bg-[#f4f7fc] pt-12 md:pt-28 pb-12 px-4 md:px-8 lg:px-12">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl md:text-3xl font-extrabold uppercase tracking-tight text-gray-900 flex items-center gap-3">
+        <motion.h1
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-2xl md:text-3xl font-extrabold uppercase tracking-tight text-gray-900 flex items-center gap-3"
+      >
           <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#3271D7] text-white">
             <ShoppingCart size={22} />
           </span>
@@ -286,34 +292,48 @@ export default function Cart() {
               {cartItems.length} item{cartItems.length > 1 ? "s" : ""}
             </span>
           )}
-        </h1>
+        </motion.h1>
 
         <div className="mt-8 grid lg:grid-cols-[2fr_1fr] gap-8 items-start">
           {/* ─── Left Column: Cart Items ────────────────────────────────── */}
           <div className="space-y-4">
             {!cartItems || cartItems.length === 0 ? (
-              <EmptyCart />
+              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
+                <EmptyCart />
+              </motion.div>
             ) : (
-              cartItems.map((item) => (
-                <CartItem
+              cartItems.map((item, i) => (
+                <motion.div
                   key={item.id}
-                  item={item}
-                  onUpdate={updateQuantity}
-                  onRemove={removeItem}
-                />
+                  initial={{ opacity: 0, x: -30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.08, duration: 0.4 }}
+                >
+                  <CartItem
+                    item={item}
+                    onUpdate={updateQuantity}
+                    onRemove={removeItem}
+                  />
+                </motion.div>
               ))
             )}
-          </div>
+        </div>
 
           {/* ─── Right Column: Order Summary ───────────────────────────── */}
           {cartItems && cartItems.length > 0 && (
-            <OrderSummary
-              subtotal={subtotal}
-              gst={gstTotal}
-              total={grandTotal}
-              itemCount={cartItems.length}
-              onCheckout={handleCheckout}
-            />
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+            >
+              <OrderSummary
+                subtotal={subtotal}
+                gst={gstTotal}
+                total={grandTotal}
+                itemCount={cartItems.length}
+                onCheckout={handleCheckout}
+              />
+            </motion.div>
           )}
         </div>
       </div>
