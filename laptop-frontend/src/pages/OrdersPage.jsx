@@ -21,6 +21,7 @@ import {
   ReceiptText,
 } from "lucide-react";
 import { API_BASE_URL } from "../services/api";
+import OrderTracking from "../components/OrderTracking";
 
 // Helper function to format date
 const formatDate = (dateString) => {
@@ -369,6 +370,14 @@ function OrdersPage() {
 
                       <div className="flex sm:flex-col lg:flex-row gap-2 w-full sm:w-auto">
                         <button
+                          onClick={() => navigate(`/track-order?order=${order.id}`)}
+                          className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-emerald-700 bg-emerald-50 rounded-xl hover:bg-emerald-600 hover:text-white transition-all duration-200"
+                        >
+                          <Truck size={16} />
+                          Track
+                        </button>
+
+                        <button
                           onClick={() => viewOrderDetails(order)}
                           className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-[#3271D7] bg-blue-50 rounded-xl hover:bg-[#3271D7] hover:text-white transition-all duration-200"
                         >
@@ -482,6 +491,23 @@ function OrdersPage() {
                     </span>
                   </div>
                 </div>
+              </div>
+
+              {/* Live Tracking */}
+              <div className="bg-white rounded-2xl p-4 sm:p-5 border border-blue-100 mb-6">
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <h4 className="font-bold text-gray-900 flex items-center gap-2">
+                    <Truck size={16} className="text-[#3271D7]" />
+                    Live Tracking
+                  </h4>
+                  <button
+                    onClick={() => navigate(`/track-order?order=${selectedOrder.id}`)}
+                    className="text-xs font-semibold text-[#3271D7] hover:text-[#265bb5] transition"
+                  >
+                    Open full page →
+                  </button>
+                </div>
+                <OrderTracking key={selectedOrder.id} orderId={selectedOrder.id} />
               </div>
 
               {/* Order Info Grid */}

@@ -13,6 +13,7 @@ use App\Models\Invoice;
 use App\Models\Company;
 use App\Models\Payment;
 use App\Models\UserAddress;
+use App\Services\OrderTrackingService;
 use Illuminate\Support\Facades\DB;
 
 class ShopController extends Controller
@@ -774,6 +775,11 @@ class ShopController extends Controller
 
             DB::commit();
 
+            // Seed the order with live tracking steps and sync the order status.
+            $tracking = new OrderTrackingService();
+            $steps = $tracking->ensureSteps($order);
+            $tracking->advance($order, $steps);
+
             return response()->json([
                 "success" => true,
                 "message" => "Order placed successfully",
@@ -915,6 +921,44 @@ class ShopController extends Controller
         return response()->json([
             "success" => true,
             "data" => $data,
+        ]);
+    }
+
+    /**
+     * GET /shop/tracking
+     * Live order tracking. Resolves the order by id or order_no, ensures the
+     * tracking steps exist, auto-advances any step whose 2-minute window has
+     * passed, and returns the current progress.
+     */
+    public function orderTracking(Request $request)
+    {
+        $query = trim($request->query('order', ''));
+        $user_id = intval($request->query('user_id', 0));
+
+        if ($query === '') {
+            return response()->json(["success" => false, "message" => "Order identifier is required"]);
+        }
+
+        $order = is_numeric($query)
+            ? Order::where('id', intval($query))->orWhere('order_no', $query)->first()
+            : Order::where('order_no', $query)->first();
+
+        if (!$order) {
+            return response()->json(["success" => false, "message" => "Order not found"]);
+        }
+
+        // Only allow the order owner to view it when a user is supplied.
+        if ($user_id > 0 && $order->user_id && intval($order->user_id) !== $user_id) {
+            return response()->json(["success" => false, "message" => "Unauthorized"]);
+        }
+
+        $tracking = new OrderTrackingService();
+        $steps = $tracking->ensureSteps($order);
+        $tracking->advance($order, $steps);
+
+        return response()->json([
+            "success" => true,
+            "data" => $tracking->payload($order),
         ]);
     }
 
