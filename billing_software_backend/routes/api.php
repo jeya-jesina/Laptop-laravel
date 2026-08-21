@@ -58,6 +58,7 @@ Route::prefix('shop')->group(function () {
     Route::post('checkout', [ShopController::class, 'checkout']);
     Route::post('payment/{id}', [ShopController::class, 'orderPayment']);
     Route::get('orders', [ShopController::class, 'orders']);
+    Route::get('tracking', [ShopController::class, 'orderTracking']);
     Route::get('orders/{id}/invoice', [ShopController::class, 'orderInvoice']);
 });
 

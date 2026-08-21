@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { CheckCircle, ShoppingBag, Home } from "lucide-react";
+import { CheckCircle, ShoppingBag, Home, Truck } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../services/api";
 
@@ -62,6 +62,14 @@ export default function OrderConfirmation() {
               Login to Track Your Order
             </Link>
           )}
+
+          <Link
+            to={`/track-order?order=${encodeURIComponent(orderId || orderNumber || "")}`}
+            className="flex items-center justify-center gap-2 w-full border border-[#a97c50] text-[#a97c50] px-6 py-3 rounded-md hover:bg-[#a97c50] hover:text-white transition"
+          >
+            <Truck size={20} />
+            Track This Order
+          </Link>
 
           <Link
             to="/"

@@ -162,7 +162,7 @@ export default function Product() {
                     company_id: companyId,
                     category_id: categoryId || 0,
                     subcategory_id: subcategoryId || 0,
-                    brand_id: brandId || 0,
+                    brand_id: [...(brandId ? [brandId] : []), ...(filters.brand_ids || [])].join(','),
                     budget_id: budgetId || 0,
                     profession_id: professionId || 0,
                     search: filters.search || '',
@@ -171,7 +171,6 @@ export default function Product() {
                     page: Math.floor((filters.offset || 0) / (filters.limit || 20)) + 1,
                     price_min: filters.price_min || 0,
                     price_max: filters.price_max || 0,
-                    brand_id: (filters.brand_ids || []).join(','),
                     processor: (filters.processors || []).join(','),
                     ram: (filters.rams || []).join(','),
                     storage: (filters.storages || []).join(','),
@@ -348,7 +347,7 @@ export default function Product() {
         (filters.price_min > 0 ? 1 : 0);
 
     return (
-        <div className="min-h-screen bg-[#f8f7f2] pt-6 md:pt-24 pb-8 md:pb-16 px-4 md:px-8 lg:px-12">
+        <div className="min-h-screen bg-[#f8f7f2] pt-4 md:pt-8 pb-8 md:pb-16 px-4 md:px-8 lg:px-12">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="mb-6">

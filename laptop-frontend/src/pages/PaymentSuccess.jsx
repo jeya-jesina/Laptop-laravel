@@ -138,7 +138,7 @@ export default function PaymentSuccess() {
 
             {data.invoice_id && (
               <Link
-                to={`/invoice/${data.invoice_id}`}
+                to={`/invoice/${data.order_id || data.invoice_id}`}
                 className="flex items-center justify-center gap-2 w-full border-2 border-[#3271D7]/20 bg-blue-50/50 text-[#3271D7] px-6 py-3.5 rounded-xl hover:bg-[#3271D7] hover:text-white transition font-semibold"
               >
                 <Printer size={20} />

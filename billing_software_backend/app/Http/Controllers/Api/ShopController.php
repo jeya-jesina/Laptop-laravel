@@ -13,6 +13,7 @@ use App\Models\Invoice;
 use App\Models\Company;
 use App\Models\Payment;
 use App\Models\UserAddress;
+use App\Services\OrderTrackingService;
 use Illuminate\Support\Facades\DB;
 
 class ShopController extends Controller
@@ -774,6 +775,11 @@ class ShopController extends Controller
 
             DB::commit();
 
+            // Seed the order with live tracking steps and sync the order status.
+            $tracking = new OrderTrackingService();
+            $steps = $tracking->ensureSteps($order);
+            $tracking->advance($order, $steps);
+
             return response()->json([
                 "success" => true,
                 "message" => "Order placed successfully",
@@ -919,13 +925,64 @@ class ShopController extends Controller
     }
 
     /**
+     * GET /shop/tracking
+     * Live order tracking. Resolves the order by id or order_no, ensures the
+     * tracking steps exist, auto-advances any step whose 2-minute window has
+     * passed, and returns the current progress.
+     */
+    public function orderTracking(Request $request)
+    {
+        $query = trim($request->query('order', ''));
+        $user_id = intval($request->query('user_id', 0));
+
+        if ($query === '') {
+            return response()->json(["success" => false, "message" => "Order identifier is required"]);
+        }
+
+        $order = is_numeric($query)
+            ? Order::where('id', intval($query))->orWhere('order_no', $query)->first()
+            : Order::where('order_no', $query)->first();
+
+        if (!$order) {
+            return response()->json(["success" => false, "message" => "Order not found"]);
+        }
+
+        // Only allow the order owner to view it when a user is supplied.
+        if ($user_id > 0 && $order->user_id && intval($order->user_id) !== $user_id) {
+            return response()->json(["success" => false, "message" => "Unauthorized"]);
+        }
+
+        $tracking = new OrderTrackingService();
+        $steps = $tracking->ensureSteps($order);
+        $tracking->advance($order, $steps);
+
+        return response()->json([
+            "success" => true,
+            "data" => $tracking->payload($order),
+        ]);
+    }
+
+    /**
      * GET /shop/orders/{id}/invoice
      */
     public function orderInvoice(Request $request, $id)
     {
         $user_id = intval($request->query('user_id', 0));
 
+        // The route is /shop/orders/{id}/invoice, so the id is an order id.
+        // Resolve the order first; if it isn't found, the caller may have
+        // passed an invoice-table id (older payment success links), so fall
+        // back to the order linked to that invoice.
         $order = Order::where('id', intval($id))->first();
+
+        $invoiceRecord = $order
+            ? Invoice::where('order_id', $order->id)->first()
+            : Invoice::find(intval($id));
+
+        if (!$order && $invoiceRecord) {
+            $order = Order::where('id', $invoiceRecord->order_id)->first();
+        }
+
         if (!$order) {
             return response()->json(["success" => false, "message" => "Invoice not found"]);
         }
@@ -937,7 +994,9 @@ class ShopController extends Controller
 
         // Prefer the invoice table record (linked via order_id) so the storefront
         // invoice matches the one shown in the billing reports.
-        $invoiceRecord = Invoice::where('order_id', $order->id)->first();
+        if (!$invoiceRecord) {
+            $invoiceRecord = Invoice::where('order_id', $order->id)->first();
+        }
 
         $company = Company::find($order->company_id) ?: Company::find(1);
 
